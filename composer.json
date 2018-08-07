@@ -1,0 +1,42 @@
+{
+	"name": "mews/laravel-pos",
+	"type": "package",
+	"description": "Laravel 5 Pos Package",
+	"keywords": ["laravel5 pos", "laravel5 sanal pos"],
+	"homepage": "https://github.com/mewebstudio/laravel-pos",
+	"license": "MIT",
+	"authors": [
+		{
+			"name": "Muharrem ERİN",
+			"email": "me@mewebstudio.com",
+			"homepage": "https://github.com/mewebstudio",
+			"role": "Developer"
+		}
+	],
+	"require": {
+		"php": ">=5.5",
+		"laravel/laravel": "~5.4",
+		"mews/pos": "^0.1"
+	},
+	"require-dev": {
+		"orchestra/testbench": "~3.4.0|~3.5.0",
+		"phpunit/phpunit": "5.*|^7.9"
+	},
+	"autoload": {
+		"psr-4": {
+			"Mews\\LaravelPos\\": "src/"
+		},
+		"files": [
+			"src/helpers.php"
+		]
+	},
+	"autoload-dev": {
+		"classmap": [
+			"tests/TestCase.php"
+		],
+		"psr-4": {
+			"Mews\\Test\\": "tests/"
+		}
+	},
+	"minimum-stability": "stable"
+}
