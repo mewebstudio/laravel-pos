@@ -33,6 +33,8 @@ class LaravelPos
     public $bank;
 
     /**
+     * Response data
+     *
      * @var object
      */
     public $response;
@@ -92,12 +94,11 @@ class LaravelPos
      * Prepare Order
      *
      * @param array $order
-     * @param array [] $card
      * @return $this
      */
-    public function prepare(array $order, array $card = [])
+    public function prepare(array $order)
     {
-        $this->pos->prepare($order, $card);
+        $this->pos->prepare($order);
 
         return $this;
     }
@@ -105,15 +106,61 @@ class LaravelPos
     /**
      * Payment
      *
-     * @param array [] $card
+     * @param array $card
      * @return $this
      */
-    public function payment(array $card = [])
+    public function payment(array $card)
     {
         $this->pos->payment($card);
 
         $this->response = $this->pos->bank->response;
 
         return $this;
+    }
+
+    /**
+     * Get gateway URL
+     *
+     * @return string|null
+     */
+    public function getGatewayUrl()
+    {
+        return isset($this->pos->bank->gateway) ? $this->pos->bank->gateway : 'null';
+    }
+
+    /**
+     * Get 3d Form Data
+     *
+     * @return array
+     */
+    public function get3dFormData()
+    {
+        $data = [];
+
+        try {
+            $data = $this->pos->bank->get3dFormData();
+        } catch (Exception $e) {}
+
+        return $data;
+    }
+
+    /**
+     * Is success
+     *
+     * @return bool
+     */
+    public function isSuccess()
+    {
+        return $this->pos->bank->isSuccess();
+    }
+
+    /**
+     * Is error
+     *
+     * @return bool
+     */
+    public function isError()
+    {
+        return $this->pos->bank->isError();
     }
 }
