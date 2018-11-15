@@ -94,11 +94,12 @@ class LaravelPos
      * Prepare Order
      *
      * @param array $order
+     * @param array $card
      * @return $this
      */
-    public function prepare(array $order)
+    public function prepare(array $order, array $card = [])
     {
-        $this->pos->prepare($order);
+        $this->pos->prepare($order, $card);
 
         return $this;
     }
@@ -109,7 +110,7 @@ class LaravelPos
      * @param array $card
      * @return $this
      */
-    public function payment(array $card)
+    public function payment(array $card = [])
     {
         $this->pos->payment($card);
 
