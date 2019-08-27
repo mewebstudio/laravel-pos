@@ -9,6 +9,11 @@
   - ext-json
   - ext-SimpleXML
 
+# Laravel 5.6 için kurulum
+```sh
+composer require mews/laravel-pos "^0.2"
+```
+
 ### Kurulum
 ```sh
 $ composer require mews/laravel-pos
