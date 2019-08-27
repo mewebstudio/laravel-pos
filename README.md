@@ -11,7 +11,8 @@
 
 # Laravel 5.6 için kurulum
 ```sh
-composer require mews/laravel-pos "^0.2"
+$ composer require --no-update "mews/laravel-pos:0.2.0"
+$ composer update
 ```
 
 ### Kurulum
