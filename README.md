@@ -14,6 +14,11 @@
 $ composer require mews/laravel-pos
 ```
 
+### Laravel 5.6 için
+```sh
+$ composer require mews/laravel-pos "^0.2"
+```
+
 `config/app.php` dosyasındaki `providers` kısmına aşağıdaki kodu ekleyin:
 ```php
 'providers' => [
