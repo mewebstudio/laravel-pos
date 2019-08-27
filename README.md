@@ -16,7 +16,8 @@ $ composer require mews/laravel-pos
 
 ### Laravel 5.6 için
 ```sh
-$ composer require mews/laravel-pos "^0.2"
+$ composer require --no-update "mews/laravel-pos:0.2.0"
+$ composer update
 ```
 
 `config/app.php` dosyasındaki `providers` kısmına aşağıdaki kodu ekleyin:
