@@ -3,6 +3,8 @@
 namespace Mews\LaravelPos;
 
 use Illuminate\Config\Repository;
+use Mews\Pos\Exceptions\BankClassNullException;
+use Mews\Pos\Exceptions\BankNotFoundException;
 use Mews\Pos\Pos;
 use Mews\Pos\PosInterface;
 
@@ -77,8 +79,8 @@ class LaravelPos
      *
      * @param array $account
      * @return $this
-     * @throws \Mews\Pos\Exceptions\BankClassNullException
-     * @throws \Mews\Pos\Exceptions\BankNotFoundException
+     * @throws BankClassNullException
+     * @throws BankNotFoundException
      */
     public function account(array $account)
     {
