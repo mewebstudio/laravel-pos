@@ -15,7 +15,7 @@
 	],
 	"require": {
 		"php": "^7.1.3",
-		"illuminate/config": "~5.7|~5.8|^6.0|^7.0",
+		"illuminate/config": "~5.7|~5.8|^6.0|^7.0|^8.0",
 		"mews/pos": "^0.4.3"
 	},
 	"require-dev": {
