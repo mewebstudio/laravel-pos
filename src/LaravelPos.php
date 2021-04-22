@@ -128,7 +128,7 @@ class LaravelPos
      */
     public function getGatewayUrl()
     {
-        return isset($this->pos->bank->gateway) ? $this->pos->bank->gateway : 'null';
+        return $this->pos->bank->gateway ?? 'null';
     }
 
     /**
