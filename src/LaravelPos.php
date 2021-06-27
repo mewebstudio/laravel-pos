@@ -3,9 +3,11 @@
 namespace Mews\LaravelPos;
 
 use Illuminate\Config\Repository;
+use Mews\Pos\Entity\Account\AbstractPosAccount;
+use Mews\Pos\Entity\Card\AbstractCreditCard;
 use Mews\Pos\Exceptions\BankClassNullException;
 use Mews\Pos\Exceptions\BankNotFoundException;
-use Mews\Pos\Pos;
+use Mews\Pos\Factory\PosFactory;
 use Mews\Pos\PosInterface;
 
 /**
@@ -77,17 +79,16 @@ class LaravelPos
     /**
      * Set account and create Pos Object
      *
-     * @param array $account
+     * @param AbstractPosAccount $account
      * @return $this
      * @throws BankClassNullException
      * @throws BankNotFoundException
      */
-    public function account(array $account)
+    public function account(AbstractPosAccount $account)
     {
         $this->account = $account;
 
-        $this->pos = new Pos($this->account, $this->config);
-        $this->bank = $this->pos->bank;
+        $this->bank = PosFactory::createPosGateway($account);
 
         return $this;
     }
@@ -95,13 +96,15 @@ class LaravelPos
     /**
      * Prepare Order
      *
-     * @param array $order
-     * @param array $card
+     * @param array                   $order
+     * @param string                  $txType
+     * @param AbstractCreditCard|null $card
+     *
      * @return $this
      */
-    public function prepare(array $order, array $card = [])
+    public function prepare(array $order, string $txType, AbstractCreditCard $card = null)
     {
-        $this->pos->prepare($order, $card);
+        $this->bank->prepare($order, $txType, $card);
 
         return $this;
     }
@@ -109,14 +112,17 @@ class LaravelPos
     /**
      * Payment
      *
-     * @param array $card
+     * @param AbstractCreditCard|null $card
+     *
      * @return $this
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     * @throws \Mews\Pos\Exceptions\UnsupportedPaymentModelException
      */
-    public function payment(array $card = [])
+    public function payment(AbstractCreditCard $card = null)
     {
-        $this->pos->payment($card);
+        $this->bank->payment($card);
 
-        $this->response = $this->pos->bank->response;
+        $this->response = $this->bank->getResponse();
 
         return $this;
     }
@@ -128,7 +134,7 @@ class LaravelPos
      */
     public function getGatewayUrl()
     {
-        return $this->pos->bank->gateway ?? 'null';
+        return $this->bank->gateway ?? 'null';
     }
 
     /**
@@ -141,8 +147,8 @@ class LaravelPos
         $data = [];
 
         try {
-            $data = $this->pos->bank->get3dFormData();
-        } catch (Exception $e) {}
+            $data = $this->bank->get3dFormData();
+        } catch (\Exception $e) {}
 
         return $data;
     }
@@ -154,7 +160,7 @@ class LaravelPos
      */
     public function isSuccess()
     {
-        return $this->pos->bank->isSuccess();
+        return $this->bank->isSuccess();
     }
 
     /**
@@ -164,6 +170,6 @@ class LaravelPos
      */
     public function isError()
     {
-        return $this->pos->bank->isError();
+        return $this->bank->isError();
     }
 }
