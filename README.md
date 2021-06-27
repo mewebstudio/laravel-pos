@@ -44,20 +44,22 @@ $ php artisan vendor:publish --provider="Mews\LaravelPos\LaravelPosServiceProvid
 
 ### Kullanım
 ```php
-
 $pos = \Mews\LaravelPos\Facades\LaravelPos::instance();
 
-$pos->account([
-    'bank'          => 'akbank',
-    'model'         => 'regular',
-    'client_id'     => 'XXXXX',
-    'username'      => 'XXXXX',
-    'password'      => 'XXXXX',
-    'env'           => 'test',
-]);
+$account = \Mews\Pos\Factory\AccountFactory::createGarantiPosAccount(
+    'garanti',
+    'clientId',
+    'username',
+    'password',
+    'terminalId',
+    'regular',
+    \Mews\Pos\Gateways\GarantiPos::LANG_TR
+);
+
+$pos->account($account);
 
 $order = [
-    'id'            => 'unique-order-id-' . str_random(16),
+    'id'            => 'unique-order-id-' . Str::random(16),
     'name'          => 'John Doe', // optional
     'email'         => 'mail@customer.com', // optional
     'user_id'       => '12', // optional
@@ -68,19 +70,13 @@ $order = [
     'transaction'   => 'pay', // pay => Auth, pre PreAuth
 ];
 
-$card = [
-    'number'        => 'XXXXXXXXXXXXXXXX',
-    'month'         => 'XX',
-    'year'          => 'XX',
-    'cvv'           => 'XXX',
-];
+$card = new \Mews\Pos\Entity\Card\CreditCardGarantiPos('1111222233334444', '20', '01', '000');
 
-$pos->prepare($order);
+$pos->prepare($order, \Mews\Pos\Gateways\AbstractGateway::TX_PAY);
 
 $payment = $pos->payment($card);
 
 dd($payment->response);
-
 ```
 
 License
