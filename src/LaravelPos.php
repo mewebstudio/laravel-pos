@@ -3,8 +3,8 @@
 namespace Mews\LaravelPos;
 
 use Illuminate\Config\Repository;
-use Mews\Pos\Entity\Account\AbstractPosAccount;
-use Mews\Pos\Entity\Card\AbstractCreditCard;
+use Mews\LaravelPos\Factory\AccountFactory;
+use Mews\LaravelPos\Factory\CardFactory;
 use Mews\Pos\Exceptions\BankClassNullException;
 use Mews\Pos\Exceptions\BankNotFoundException;
 use Mews\Pos\Factory\PosFactory;
@@ -43,6 +43,8 @@ class LaravelPos
      */
     public $response;
 
+    public $bankName;
+
     /**
      * Constructor
      *
@@ -67,6 +69,7 @@ class LaravelPos
      * Set custom configuration
      *
      * @param array $config
+     *
      * @return LaravelPos
      */
     public function config(array $config)
@@ -79,16 +82,27 @@ class LaravelPos
     /**
      * Set account and create Pos Object
      *
-     * @param AbstractPosAccount $account
+     * @param array $account
+     *
      * @return $this
      * @throws BankClassNullException
      * @throws BankNotFoundException
      */
-    public function account(AbstractPosAccount $account)
+    public function account(array $account)
     {
+        $env = $account['env'] ?? null;
+
+        $this->bankName = $account['bank'];
+
+        $account = AccountFactory::create($account);
+
         $this->account = $account;
 
         $this->bank = PosFactory::createPosGateway($account);
+
+        if ($env == 'test') {
+            $this->bank->setTestMode(true);
+        }
 
         return $this;
     }
@@ -96,14 +110,18 @@ class LaravelPos
     /**
      * Prepare Order
      *
-     * @param array                   $order
-     * @param string                  $txType
-     * @param AbstractCreditCard|null $card
+     * @param array      $order
+     * @param string     $txType
+     * @param array|null $card
      *
      * @return $this
      */
-    public function prepare(array $order, string $txType, AbstractCreditCard $card = null)
+    public function prepare(array $order, string $txType, array $card = null)
     {
+        $card['bank'] = $this->bankName;
+
+        $card = CardFactory::create($card);
+
         $this->bank->prepare($order, $txType, $card);
 
         return $this;
@@ -112,14 +130,18 @@ class LaravelPos
     /**
      * Payment
      *
-     * @param AbstractCreditCard|null $card
+     * @param array|null $card
      *
      * @return $this
      * @throws \GuzzleHttp\Exception\GuzzleException
      * @throws \Mews\Pos\Exceptions\UnsupportedPaymentModelException
      */
-    public function payment(AbstractCreditCard $card = null)
+    public function payment(array $card = null)
     {
+        $card['bank'] = $this->bankName;
+
+        $card = CardFactory::create($card);
+
         $this->bank->payment($card);
 
         $this->response = $this->bank->getResponse();
