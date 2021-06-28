@@ -4,11 +4,11 @@
 [Pos](https://github.com/mewebstudio/pos)
 
 ### Minimum Gereksinimler
-  - PHP >= 7.1.3
-  - ext-dom
-  - ext-json
-  - ext-openssl
-  - ext-SimpleXML
+- PHP >= 7.1.3
+- ext-dom
+- ext-json
+- ext-openssl
+- ext-SimpleXML
 
 ### Kurulum
 ```sh
