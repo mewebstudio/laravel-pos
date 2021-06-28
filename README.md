@@ -4,11 +4,11 @@
 [Pos](https://github.com/mewebstudio/pos)
 
 ### Minimum Gereksinimler
-  - PHP >= 7.1.3
-  - ext-dom
-  - ext-json
-  - ext-openssl
-  - ext-SimpleXML
+- PHP >= 7.1.3
+- ext-dom
+- ext-json
+- ext-openssl
+- ext-SimpleXML
 
 ### Kurulum
 ```sh
@@ -44,22 +44,20 @@ $ php artisan vendor:publish --provider="Mews\LaravelPos\LaravelPosServiceProvid
 
 ### Kullanım
 ```php
+
 $pos = \Mews\LaravelPos\Facades\LaravelPos::instance();
 
-$account = \Mews\Pos\Factory\AccountFactory::createGarantiPosAccount(
-    'garanti',
-    'clientId',
-    'username',
-    'password',
-    'terminalId',
-    'regular',
-    \Mews\Pos\Gateways\GarantiPos::LANG_TR
-);
-
-$pos->account($account);
+$pos->account([
+    'bank'          => 'akbank',
+    'model'         => 'regular',
+    'client_id'     => 'XXXXX',
+    'username'      => 'XXXXX',
+    'password'      => 'XXXXX',
+    'env'           => 'test',
+]);
 
 $order = [
-    'id'            => 'unique-order-id-' . Str::random(16),
+    'id'            => 'unique-order-id-' . str_random(16),
     'name'          => 'John Doe', // optional
     'email'         => 'mail@customer.com', // optional
     'user_id'       => '12', // optional
@@ -70,13 +68,19 @@ $order = [
     'transaction'   => 'pay', // pay => Auth, pre PreAuth
 ];
 
-$card = new \Mews\Pos\Entity\Card\CreditCardGarantiPos('1111222233334444', '20', '01', '000');
+$card = [
+    'number'        => 'XXXXXXXXXXXXXXXX',
+    'month'         => 'XX',
+    'year'          => 'XX',
+    'cvv'           => 'XXX',
+];
 
-$pos->prepare($order, \Mews\Pos\Gateways\AbstractGateway::TX_PAY);
+$pos->prepare($order);
 
 $payment = $pos->payment($card);
 
 dd($payment->response);
+
 ```
 
 License
