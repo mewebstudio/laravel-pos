@@ -54,7 +54,7 @@ class LaravelPosServiceProvider extends ServiceProvider {
         $i = 0;
         foreach ($banks as $bankKey => $bankConfig) {
             $id = "laravel-pos:gateway:$bankKey";
-            $this->app->bind($id, function(Application $app) use ($bankKey, $bankConfig) {
+            $this->app->singleton($id, function(Application $app) use ($bankKey, $bankConfig) {
                 return GatewayFactory::create(
                     $bankKey,
                     $bankConfig,
@@ -65,7 +65,7 @@ class LaravelPosServiceProvider extends ServiceProvider {
             });
             if ($i === 0) {
                 // set default to inject for PosInterface
-                $this->app->bind(PosInterface::class, $id);
+                $this->app->singleton(PosInterface::class, $id);
                 $i++;
             }
             $this->app->tag($id, 'laravel-pos:gateway');
