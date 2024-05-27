@@ -32,7 +32,7 @@
     return [
         'banks' => [
             'kuveytpos' => [ # ilk sıradaki banka injection için default olur.
-                'gateway_class'     => Mews\Pos\Gateways\KuveytPos::class,
+                'gateway_class'     => \Mews\Pos\Gateways\KuveytPos::class,
                 'test_mode'         => true,
                 'lang'              => \Mews\Pos\PosInterface::LANG_TR,
                 'credentials'       => [
@@ -49,9 +49,9 @@
                 ],
             ],
             'estpos_payten' => [
-                'gateway_class'     => Mews\Pos\Gateways\EstV3Pos::class,
+                'gateway_class'     => \Mews\Pos\Gateways\EstV3Pos::class,
                 'test_mode'         => true,
-                'lang' => \Mews\Pos\PosInterface::LANG_TR,
+                'lang'              => \Mews\Pos\PosInterface::LANG_TR,
                 'credentials'       => [
                     'payment_model' => \Mews\Pos\PosInterface::MODEL_3D_SECURE,
                     'merchant_id'   => '7001132146464',
