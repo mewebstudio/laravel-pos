@@ -83,10 +83,10 @@ return [
     'banks' => [
         'estpos_payten'         => [
             'gateway_class'     => \Mews\Pos\Gateways\EstV3Pos::class,
-            'lang'              => \Mews\ Pos\PosInterface::LANG_TR, // optional
+            'lang'              => \Mews\Pos\PosInterface::LANG_TR, // optional
             'test_mode'         => true, // optional
             'credentials'       => [
-                'payment_model' => \Mews\ Pos\PosInterface::MODEL_3D_SECURE,
+                'payment_model' => \Mews\Pos\PosInterface::MODEL_3D_SECURE,
                 'merchant_id'   => '700XXXXXXX',
                 'user_name'     => 'ISXXXXXXX', // EstPos: kullanici adi
                 'user_password' => 'ISXXXXXXX', // EstPos: kullanici sifresi
@@ -101,7 +101,7 @@ return [
         'yapikredi'             => [
             'gateway_class'     => \Mews\Pos\Gateways\PosNet::class,
             'credentials'       => [
-                'payment_model' => \Mews\ Pos\PosInterface::MODEL_3D_SECURE,
+                'payment_model' => \Mews\Pos\PosInterface::MODEL_3D_SECURE,
                 'merchant_id'   => '670XXXXXXX', // Üye İşyeri Numarası.
                 'terminal_id'   => '673XXXXXXX', // Üye İşyeri Terminal Numarası
                 'user_name'     => '27XXXXXXX', // Üye İşyeri POSNET Numarası
@@ -115,7 +115,7 @@ return [
         'albaraka'              => [
             'gateway_class'     => \Mews\Pos\Gateways\PosNetV1Pos::class,
             'credentials'       => [
-                'payment_model' => \Mews\ Pos\PosInterface::MODEL_3D_SECURE,
+                'payment_model' => \Mews\Pos\PosInterface::MODEL_3D_SECURE,
                 'merchant_id'   => '670XXXXXXX', // 10 haneli üye işyeri numarası
                 'terminal_id'   => 'XXXXXXXX', // 8 haneli üye işyeri terminal numarası
                 'user_name'     => '10100628XXXXXXX', // 16 haneli üye işyeri EPOS numarası.
@@ -129,7 +129,7 @@ return [
         'payfor_finansbank'     => [
             'gateway_class'     => \Mews\Pos\Gateways\PayForPos::class,
             'credentials'       => [
-                'payment_model' => \Mews\ Pos\PosInterface::MODEL_3D_SECURE,
+                'payment_model' => \Mews\Pos\PosInterface::MODEL_3D_SECURE,
                 'merchant_id'   => '08530000XXXXXXXX', // Üye İşyeri Numarası.
                 'user_name'     => 'QNB_API_XXXXXXXX', // UserCode: Otorizasyon sistemi kullanıcı kodu.
                 'user_password' => 'XXXXXXXX', // Otorizasyon sistemi kullanıcı şifresi.
@@ -144,7 +144,7 @@ return [
         'garanti'               => [
             'gateway_class'     => \Mews\Pos\Gateways\GarantiPos::class,
             'credentials'       => [
-                'payment_model'        => \Mews\ Pos\PosInterface::MODEL_3D_SECURE,
+                'payment_model'        => \Mews\Pos\PosInterface::MODEL_3D_SECURE,
                 'merchant_id'          => '70XXXXXXXX', // MerchantID
                 'user_name'            => 'XXXXXXXX', // ProvUserID
                 'user_password'        => '123XXXXXXXX', // ProvisionPassword
@@ -161,7 +161,7 @@ return [
         'interpos_denizbank'    => [
             'gateway_class'     => \Mews\Pos\Gateways\InterPos::class,
             'credentials'       => [
-                'payment_model' => \Mews\ Pos\PosInterface::MODEL_3D_SECURE,
+                'payment_model' => \Mews\Pos\PosInterface::MODEL_3D_SECURE,
                 'merchant_id'   => 'InterXXXXXXXX', // ShopCode
                 'user_name'     => '31XXXXXXXX', // UserCode
                 'user_password' => '3XXXXXXXX', // UserPass
@@ -176,7 +176,7 @@ return [
         'kuveytpos'             => [
             'gateway_class'     => \Mews\Pos\Gateways\KuveytPos::class,
             'credentials'       => [
-                'payment_model' => \Mews\ Pos\PosInterface::MODEL_3D_SECURE,
+                'payment_model' => \Mews\Pos\PosInterface::MODEL_3D_SECURE,
                 'merchant_id'   => '4XXXXXXXX', // MerchantId: Üye işyerinin Kuveyt Türk SanalPos servisinde kayıtlı özel numarasıdır.
                 'terminal_id'   => '40XXXXXXXX', // CustomerId: Üye işyerinin Kuveyt Türk'te yer SanalPos için kullanılabilecek hesaba ait müşteri numarasıdır.
                 'user_name'     => 'apiXXXXXXXX', // UserName: https://kurumsal.kuveytturk.com.tr adresine login olarak kullanıcı işlemleri sayfasında APİ rolünde kullanıcı oluşturulmalıdır.
@@ -191,7 +191,7 @@ return [
         'vakifkatilim'          => [
             'gateway_class'     => \Mews\Pos\Gateways\VakifKatilimPos::class,
             'credentials'       => [
-                'payment_model' => \Mews\ Pos\PosInterface::MODEL_3D_SECURE,
+                'payment_model' => \Mews\Pos\PosInterface::MODEL_3D_SECURE,
                 'merchant_id'   => '1XXXXXXXX', // MerchantId: Üye işyerinin Kuveyt Türk SanalPos servisinde kayıtlı özel numarasıdır.
                 'terminal_id'   => '1XXXXXXXX', // CustomerId: Üye işyerinin Kuveyt Türk'te yer SanalPos için kullanılabilecek hesaba ait müşteri numarasıdır.
                 'user_name'     => 'APIXXXXXXXX', // UserName: https://kurumsal.kuveytturk.com.tr adresine login olarak kullanıcı işlemleri sayfasında APİ rolünde kullanıcı oluşturulmalıdır.
@@ -206,7 +206,7 @@ return [
         'payflexv4_ziraat'      => [
             'gateway_class'     => \Mews\Pos\Gateways\PayFlexV4Pos::class,
             'credentials'       => [
-                'payment_model' => \Mews\ Pos\PosInterface::MODEL_3D_SECURE,
+                'payment_model' => \Mews\Pos\PosInterface::MODEL_3D_SECURE,
                 'merchant_id'   => '000000000XXXXXXXX', // HostMerchantId: Üye işyeri numarası
                 'terminal_id'   => 'VPXXXXXXXX', // HostTerminalNo: İşlemin hangi terminal üzerinden gönderileceği bilgisi
                 'user_password' => '3XXXXXXXX', // Password: Üye işyeri şifresi
@@ -220,7 +220,7 @@ return [
         'payflexcpv4_vakifbank' => [
             'gateway_class'     => \Mews\Pos\Gateways\PayFlexCPV4Pos::class,
             'credentials'       => [
-                'payment_model' => \Mews\ Pos\PosInterface::MODEL_3D_PAY,
+                'payment_model' => \Mews\Pos\PosInterface::MODEL_3D_PAY,
                 'merchant_id'   => '0001000XXXXXXXX', // HostMerchantId: Üye işyeri numarası
                 'terminal_id'   => 'VPXXXXXXXX', // HostTerminalNo: İşlemin hangi terminal üzerinden gönderileceği bilgisi
                 'user_password' => 'XXXXXXXX', // Password: Üye işyeri şifresi
@@ -234,7 +234,7 @@ return [
         'akbankpos'             => [
             'gateway_class'     => \Mews\Pos\Gateways\AkbankPos::class,
             'credentials'       => [
-                'payment_model' => \Mews\ Pos\PosInterface::MODEL_3D_SECURE,
+                'payment_model' => \Mews\Pos\PosInterface::MODEL_3D_SECURE,
                 'merchant_id'   => '20230904XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX', // merchantSafeId: 32 karakter üye İş Yeri numarası
                 'terminal_id'   => '20230904XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX', // terminalSafeId: 32 karakter
                 'enc_key'       => '3230XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX', // secretKey
@@ -248,7 +248,7 @@ return [
         'toslapos'              => [
             'gateway_class'     => \Mews\Pos\Gateways\ToslaPos::class,
             'credentials'       => [
-                'payment_model' => \Mews\ Pos\PosInterface::MODEL_3D_PAY,
+                'payment_model' => \Mews\Pos\PosInterface::MODEL_3D_PAY,
                 'merchant_id'   => '100XXXXXXXX', // clientId
                 'user_name'     => 'POS_ENTXXXXXXXX', // apiUser
                 'enc_key'       => 'POS_ENTXXXXXXXX', // apiPass
