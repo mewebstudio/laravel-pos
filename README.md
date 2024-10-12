@@ -31,6 +31,8 @@
     # /config/laravel-pos.php
     return [
         'banks' => [
+            # array keyleri unique olmalıdır, bu keylerle Controller'larda su sekilde erisilebilir:
+            # $this->container->get('laravel-pos:gateway:kuveytpos');
             'kuveytpos' => [ # ilk sıradaki banka injection için default olur.
                 'gateway_class'     => \Mews\Pos\Gateways\KuveytPos::class,
                 'test_mode'         => true,
@@ -102,7 +104,7 @@
             // ...
             ->withMiddleware(function (Middleware $middleware) {
                 $middleware->validateCsrfTokens(except: [
-                    '/single-bank/payment/3d/response'
+                    '/payment/3d/response'
                 ]);
             });
     ```
@@ -120,7 +122,7 @@
     {
         protected $except = [
             // success ve fail URL'lar buraya eklenecek:
-            '/single-bank/payment/3d/response',
+            '/payment/3d/response',
         ];
     }
     ```
@@ -246,39 +248,45 @@ use Mews\Pos\Factory\CreditCardFactory;
 use Mews\Pos\Gateways\PayFlexV4Pos;
 use Mews\Pos\PosInterface;
 
-class SingleBankThreeDSecurePaymentController extends Controller
+class ThreeDSecurePaymentController extends Controller
 {
     private string $paymentModel = PosInterface::MODEL_3D_SECURE;
 
+    // Tek banka örnegi:
+    // Tek banka anlamı /config/laravel-pos.php'de sadece bir banka tanımlanmış olmasıdır.
     public function __construct(
         private PosInterface $pos,
-        Container $container,
-    )
-    {
-//        // Pos servise alternatif erişim yöntemi:
-//        // "kuveytpos" laravel-pos.php'de tanımladığınız isim olur.
-//        $kuveytPos = $container->get('laravel-pos:gateway:kuveytpos');
-//
-//        // birden fazla banka varsa tag
-//        $allPosServices = $container->tagged('laravel-pos:gateway');
-//        foreach ($allPosServices as $bank) {
-//            if ('kuveytpos' === $bank->getAccount()->getBank()) {
-//                // pos found
-//            }
-//        }
+    ) {
     }
+    
+    // START: birden fazla banka ile örnek:
+//    public function __construct(
+//        private Container $container,
+//    ) {}
+//    
+//    private function getPosService(string $bank): PosInterface
+//    {
+//        return $this->container->get('laravel-pos:gateway:'.$bank);
+//    }
+    // END: birden fazla banka ile örnek
 
     /**
-     * route: /single-bank/payment/3d/form
+     * route: /payment/3d/form
      * Kullanicidan kredi kart bilgileri alip buraya POST ediyoruz
      */
     public function form(Request $request)
     {
         $session = $request->getSession();
+    
+        // START: birden fazla banka ile örnek
+//        $secilenBanka = $request->get('installment') > 1 ? 'kuveytpos' : 'estpos_payten';
+//        $this->pos = $this->posService($secilenBanka);
+//        $session->set('secilen_banka', $secilenBanka);
+        // END: birden fazla banka ile örnek 
 
         $transaction = $request->get('tx', PosInterface::TX_TYPE_PAY_AUTH);
 
-        $callbackUrl = url("/single-bank/payment/3d/response");
+        $callbackUrl = url("/payment/3d/response");
         $order       = $this->createNewOrder(
             $this->paymentModel,
             $callbackUrl,
@@ -312,7 +320,7 @@ class SingleBankThreeDSecurePaymentController extends Controller
     }
 
     /**
-     * route: /single-bank/payment/3d/response
+     * route: /payment/3d/response
      * Kullanici bankadan geri buraya redirect edilir.
      * Bu route icin CSRF disable edilmesi gerekiyor.
      */
@@ -320,6 +328,10 @@ class SingleBankThreeDSecurePaymentController extends Controller
     {
         $session = $request->getSession();
 
+        // START: birden fazla banka ile örnek
+        $this->pos = $this->posService($session->get('secilen_banka'));
+        // END: birden fazla banka ile örnek 
+        
         $transaction = $session->get('tx', PosInterface::TX_TYPE_PAY_AUTH);
 
         // bankadan POST veya GET ile veri gelmesi gerekiyor
@@ -345,9 +357,9 @@ class SingleBankThreeDSecurePaymentController extends Controller
         try {
             $this->pos->payment($this->paymentModel, $order, $transaction, $card);
         } catch (HashMismatchException $e) {
-            dd($e);
+            dd($request->request->all(), $request->query->all(), $e);
         } catch (\Exception|\Error $e) {
-            dd($e);
+            dd($request->request->all(), $request->query->all(), $e);
         }
 
         $response = $this->pos->getResponse();
@@ -422,8 +434,8 @@ class SingleBankThreeDSecurePaymentController extends Controller
 
 ```php
 # /routes/web.php
-Route::match(['POST'], '/single-bank/payment/3d/form', [\App\Http\Controllers\SingleBankThreeDSecurePaymentController::class, 'form']);
-Route::match(['GET','POST'], '/single-bank/payment/3d/response', [\App\Http\Controllers\SingleBankThreeDSecurePaymentController::class, 'response']);
+Route::match(['POST'], '/payment/3d/form', [\App\Http\Controllers\ThreeDSecurePaymentController::class, 'form']);
+Route::match(['GET','POST'], '/payment/3d/response', [\App\Http\Controllers\ThreeDSecurePaymentController::class, 'response']);
 ```
 
 ```html
@@ -439,6 +451,13 @@ Route::match(['GET','POST'], '/single-bank/payment/3d/response', [\App\Http\Cont
     </div>
 
 </form>
+<script>
+   // Formu JS ile otomatik submit ederek kullaniciyi banka gatewayine yonlendiriyoruz.
+   let redirectForm = document.querySelector('form.redirect-form');
+   if (redirectForm) {
+      redirectForm.submit();
+   }
+</script>
 ```
 
 ### Troubleshoots
