@@ -71,22 +71,24 @@
     ];
     ```
 
-3. PHP Session kullanıyorsanız 3D ödemeler için session'i alttaki şekilde konfigure etmeniz gerekir.
+3. PHP Session kullanıyorsanız 3D ödemeler için session'i alttaki şekilde ayarlamanız gerekir.
     
     **Laravel 11** için environment değişkenleri şu şekilde olacak:
     ```
     SESSION_SECURE_COOKIE=true
     SESSION_SAME_SITE=None
     ```
-    **Laravel 10, 9, 8** için ise environment'da `SESSION_SECURE_COOKIE=true` yapılacak ve `/config/session.php`'de `same_site` değeri güncellenecek:
-    ```php
-    # /config/session.php:
-    return [
-        // ...
-        'same_site' => 'none',
-    ]
-    ```
-   Değişikliklerden sonra var olan session'i silip yeni session oluşturunuz.
+    **Laravel 10, 9, 8** için ise 
+   1. Environment'da `SESSION_SECURE_COOKIE=true` yapılacak 
+   2. Ve `/config/session.php`'de `same_site` değeri güncellenecek:
+       ```php
+       # /config/session.php:
+       return [
+           // ...
+           'same_site' => 'none',
+       ]
+       ```
+   _Değişikliklerden sonra var olan session'i silip yeni session oluşturunuz._
 
 4. 3D ödemelerde bankadan websiteye geri redirect edilecek URL'larda (success/fail URL'lar) CSRF kapatılması gerekir.
 
@@ -329,7 +331,7 @@ class ThreeDSecurePaymentController extends Controller
         $session = $request->getSession();
 
         // START: birden fazla banka ile örnek
-        $this->pos = $this->posService($session->get('secilen_banka'));
+        // $this->pos = $this->posService($session->get('secilen_banka'));
         // END: birden fazla banka ile örnek 
         
         $transaction = $session->get('tx', PosInterface::TX_TYPE_PAY_AUTH);
