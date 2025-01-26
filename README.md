@@ -14,7 +14,7 @@
 
 ### Minimum Gereksinimler
 - PHP >= 7.4
-- mews/pos ^1.3
+- mews/pos ^1.6
 - laravel 8, 9, 10, 11
 
 ### Kurulum
@@ -275,7 +275,18 @@ class ThreeDSecurePaymentController extends Controller
         $session->set('tx', $transaction);
 
         try {
-            $formData = $this->pos->get3DFormData($order, $this->paymentModel, $transaction, $card);
+            $formData = $this->pos->get3DFormData(
+            $order,
+            $this->paymentModel,
+            $transaction,
+            $card,
+            /**
+            * MODEL_3D_SECURE veya MODEL_3D_PAY ödemelerde kredi kart verileri olmadan
+            * form verisini oluşturmak için true yapabilirsiniz.
+            * Yine de bazı gatewaylerde kartsız form verisi oluşturulamıyor.
+            */
+            false
+            );
         } catch (\Throwable $e) {
             dd($e);
         }
@@ -406,24 +417,28 @@ Route::match(['GET','POST'], '/payment/3d/response', [\App\Http\Controllers\Thre
 
 ```html
 <!--/resources/views/redirect-form.blade.php-->
-<form method="{{ $formData['method'] }}" action="{{ $formData['gateway'] }}"  class="redirect-form" role="form">
-    @foreach($formData['inputs'] as $key => $value)
-    <input type="hidden" name="{{ $key }}" value="{{ $value }}">
-    @endforeach
-    <div class="text-center">Redirecting...</div>
-    <hr>
-    <div class="form-group text-center">
-        <button type="submit" class="btn btn-lg btn-block btn-success">Submit</button>
-    </div>
-
-</form>
-<script>
-   // Formu JS ile otomatik submit ederek kullaniciyi banka gatewayine yonlendiriyoruz.
-   let redirectForm = document.querySelector('form.redirect-form');
-   if (redirectForm) {
-      redirectForm.submit();
-   }
-</script>
+@if(is_string($formData))
+    {!! $formData !!}
+@else
+   <form method="{{ $formData['method'] }}" action="{{ $formData['gateway'] }}"  class="redirect-form" role="form">
+      @foreach($formData['inputs'] as $key => $value)
+      <input type="hidden" name="{{ $key }}" value="{{ $value }}">
+      @endforeach
+      <div class="text-center">Redirecting...</div>
+      <hr>
+      <div class="form-group text-center">
+         <button type="submit" class="btn btn-lg btn-block btn-success">Submit</button>
+      </div>
+   
+   </form>
+   <script>
+      // Formu JS ile otomatik submit ederek kullaniciyi banka gatewayine yonlendiriyoruz.
+      let redirectForm = document.querySelector('form.redirect-form');
+      if (redirectForm) {
+         redirectForm.submit();
+      }
+   </script>
+@endif
 ```
 
 ### Troubleshoots
