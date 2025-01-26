@@ -148,60 +148,24 @@
             if ($event->getGatewayClass() !== \Mews\Pos\Gateways\KuveytPos::class) {
                 return;
             }
-    
             /**
              * ekstra eklenmesi gereken verileri isteseniz $order icine ekleyip sonra o verilere
              * $event->getOrder() ile erisebilirsiniz.
              */
             $additionalRequestDataForKuveyt = [
                 'DeviceData'     => [
-                    /**
-                     * DeviceChannel : DeviceData alanı içerisinde gönderilmesi beklenen işlemin yapıldığı cihaz bilgisi.
-                     * 2 karakter olmalıdır. 01-Mobil, 02-Web Browser için kullanılmalıdır.
-                     */
                     'DeviceChannel' => '02',
                 ],
                 'CardHolderData' => [
-                    /**
-                     * BillAddrCity: Kullanılan kart ile ilişkili kart hamilinin fatura adres şehri.
-                     * Maksimum 50 karakter uzunluğunda olmalıdır.
-                     */
                     'BillAddrCity'     => 'İstanbul',
-                    /**
-                     * BillAddrCountry Kullanılan kart ile ilişkili kart hamilinin fatura adresindeki ülke kodu.
-                     * Maksimum 3 karakter uzunluğunda olmalıdır.
-                     * ISO 3166-1 sayısal üç haneli ülke kodu standardı kullanılmalıdır.
-                     */
                     'BillAddrCountry'  => '792',
-                    /**
-                     * BillAddrLine1: Kullanılan kart ile ilişkili kart hamilinin teslimat adresinde yer alan sokak vb. bilgileri içeren açık adresi.
-                     * Maksimum 150 karakter uzunluğunda olmalıdır.
-                     */
                     'BillAddrLine1'    => 'XXX Mahallesi XXX Caddesi No 55 Daire 1',
-                    /**
-                     * BillAddrPostCode: Kullanılan kart ile ilişkili kart hamilinin fatura adresindeki posta kodu.
-                     */
                     'BillAddrPostCode' => '34000',
-                    /**
-                     * BillAddrState: CardHolderData alanı içerisinde gönderilmesi beklenen ödemede kullanılan kart ile ilişkili kart hamilinin fatura adresindeki il veya eyalet bilgisi kodu.
-                     * ISO 3166-2'de tanımlı olan il/eyalet kodu olmalıdır.
-                     */
                     'BillAddrState'    => '40',
-                    /**
-                     * Email: Kullanılan kart ile ilişkili kart hamilinin iş yerinde oluşturduğu hesapta kullandığı email adresi.
-                     * Maksimum 254 karakter uzunluğunda olmalıdır.
-                     */
                     'Email'            => 'xxxxx@gmail.com',
                     'MobilePhone'      => [
-                        /**
-                         * Cc: Kullanılan kart ile ilişkili kart hamilinin cep telefonuna ait ülke kodu. 1-3 karakter uzunluğunda olmalıdır.
-                         */
                         'Cc'         => '90',
-                        /**
-                         * Subscriber: Kullanılan kart ile ilişkili kart hamilinin cep telefonuna ait abone numarası.
-                         * Maksimum 15 karakter uzunluğunda olmalıdır.
-                         */
-                        'Subscriber' => '1234567899',
+                        'Subscriber' => '5554567899',
                     ],
                 ],
             ];
