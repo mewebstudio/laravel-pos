@@ -76,7 +76,7 @@
     **Laravel 11** için environment değişkenleri şu şekilde olacak:
     ```
     SESSION_SECURE_COOKIE=true
-    SESSION_SAME_SITE=None
+    SESSION_SAME_SITE=Lax # ya da SESSION_SAME_SITE=None deneyiniz.
     ```
     **Laravel 10, 9, 8** için ise 
    1. Environment'da `SESSION_SECURE_COOKIE=true` yapılacak 
@@ -85,7 +85,7 @@
        # /config/session.php:
        return [
            // ...
-           'same_site' => 'none',
+           'same_site' => 'lax', # ya da 'none' deneyiniz.
        ]
        ```
    _Değişikliklerden sonra var olan session'i silip yeni session oluşturunuz._
