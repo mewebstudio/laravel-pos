@@ -12,6 +12,7 @@ use Mews\Pos\Gateways\EstV3Pos;
 use Mews\Pos\Gateways\GarantiPos;
 use Mews\Pos\Gateways\InterPos;
 use Mews\Pos\Gateways\KuveytPos;
+use Mews\Pos\Gateways\ParamPos;
 use Mews\Pos\Gateways\PayFlexCPV4Pos;
 use Mews\Pos\Gateways\PayFlexV4Pos;
 use Mews\Pos\Gateways\PayForPos;
@@ -129,6 +130,14 @@ class AccountFactory
                     $name,
                     $credentials['merchant_id'],
                     $credentials['user_name'],
+                    $credentials['enc_key'],
+                );
+            case ParamPos::class:
+                return MewsPosAccountFactory::createParamPosAccount(
+                    $name,
+                    $credentials['merchant_id'],
+                    $credentials['user_name'],
+                    $credentials['user_password'],
                     $credentials['enc_key'],
                 );
         }
