@@ -51,6 +51,9 @@ return [
 
                 // GarantiPos: ProvisionPassword
                 'refund_user_password' => null,
+                
+                // PayForPos: MbrId
+                'mbr_id'               => null,
             ],
             'gateway_endpoints' => [ // Required
                  'payment_api'     => null, // Required
@@ -134,6 +137,7 @@ return [
                 'user_name'     => 'QNB_API_XXXXXXXX', // UserCode: Otorizasyon sistemi kullanıcı kodu.
                 'user_password' => 'XXXXXXXX', // Otorizasyon sistemi kullanıcı şifresi.
                 'enc_key'       => 'XXXXXXXX', // MerchantPass: 3D Secure şifresidir.
+                'mbr_id'        => \Mews\Pos\Entity\Account\PayForAccount::MBR_ID_FINANSBANK, // veya MBR_ID_ZIRAAT_KATILIM (Kurum Kodu)
             ],
             'gateway_endpoints' => [
                 'payment_api'     => 'https://vpostest.qnbfinansbank.com/Gateway/XMLGate.aspx',

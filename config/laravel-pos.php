@@ -45,6 +45,9 @@ return [
 
                 // GarantiPos: ProvisionPassword
                 'refund_user_password' => null,
+
+                // PayForPos only
+                'mbr_id'               => null,
             ],
             'gateway_endpoints' => [ // Required
                  'payment_api'     => null, // Required

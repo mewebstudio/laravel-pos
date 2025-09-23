@@ -4,6 +4,7 @@ namespace Mews\LaravelPos\Factory;
 
 use Mews\Pos\Entity\Account\AbstractPosAccount;
 use Mews\Pos\Entity\Account\PayFlexAccount;
+use Mews\Pos\Entity\Account\PayForAccount;
 use Mews\Pos\Exceptions\MissingAccountInfoException;
 use Mews\Pos\Factory\AccountFactory as MewsPosAccountFactory;
 use Mews\Pos\Gateways\AkbankPos;
@@ -69,6 +70,7 @@ class AccountFactory
                     $credentials['payment_model'],
                     $credentials['enc_key'] ?? null,
                     $lang,
+                    $credentials['mbr_id'] ?? PayForAccount::MBR_ID_FINANSBANK,
                 );
             case GarantiPos::class:
                 return MewsPosAccountFactory::createGarantiPosAccount(
