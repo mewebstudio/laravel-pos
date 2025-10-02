@@ -51,7 +51,10 @@ class GatewayFactory
 
         /** @var PosInterface $gateway */
         $gateway = new $gatewayClass(
-            ['gateway_endpoints' => $options['gateway_endpoints']],
+            [
+                'gateway_endpoints' => $options['gateway_endpoints'],
+                'gateway_configs' => $options['gateway_configs'] ?? [],
+            ],
             $account,
             $requestDataMapper,
             $responseDataMapper,
@@ -61,7 +64,9 @@ class GatewayFactory
             $logger,
         );
 
-        $gateway->setTestMode($options['test_mode'] ?? false);
+        if (!isset($options['gateway_configs']['test_mode']) && isset($options['test_mode'])) {
+            $gateway->setTestMode($options['test_mode']);
+        }
 
         return $gateway;
     }

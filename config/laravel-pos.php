@@ -50,12 +50,17 @@ return [
                 'mbr_id'               => null,
             ],
             'gateway_endpoints' => [ // Required
-                 'payment_api'     => null, // Required
-                 'gateway_3d'      => null, // Required
-                 'gateway_3d_host' => null,
-                 'query_api'       => null,
+                'payment_api'     => null, // Required
+                'gateway_3d'      => null, // Required
+                'gateway_3d_host' => null,
+                'query_api'       => null,
             ],
-            'test_mode'         => false,
+            'gateway_configs' => [ // optional
+                'test_mode' => false, // default: false
+                // Hash kontrolü kütühaneden dolayı başarısız sonuçlanıyorsa bu ayarla devre dışı bırakılabilir.
+                // Ancak hash kontrolünün devre dışı bırakılması güvenlik açığı oluşturabilir.
+                'disable_3d_hash_check' => false, // default: false
+            ],
         ],
     ],
 ];
