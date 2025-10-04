@@ -35,7 +35,6 @@
             # $this->container->get('laravel-pos:gateway:kuveytpos');
             'kuveytpos' => [ # ilk sıradaki banka injection için default olur.
                 'gateway_class'     => \Mews\Pos\Gateways\KuveytPos::class,
-                'test_mode'         => true,
                 'lang'              => \Mews\Pos\PosInterface::LANG_TR,
                 'credentials'       => [
                     'payment_model' => \Mews\Pos\PosInterface::MODEL_3D_SECURE,
@@ -43,6 +42,9 @@
                     'terminal_id'   => 'yyyyyyy',
                     'user_name'     => 'zzzzzzz',
                     'enc_key'       => 'www123',
+                ],
+                'gateway_configs'   => [
+                    'test_mode' => true,
                 ],
                 'gateway_endpoints' => [
                     'payment_api'     => 'https://boatest.kuveytturk.com.tr/boa.virtualpos.services/Home',
@@ -52,7 +54,6 @@
             ],
             'estpos_payten' => [
                 'gateway_class'     => \Mews\Pos\Gateways\EstV3Pos::class,
-                'test_mode'         => true,
                 'lang'              => \Mews\Pos\PosInterface::LANG_TR,
                 'credentials'       => [
                     'payment_model' => \Mews\Pos\PosInterface::MODEL_3D_SECURE,
