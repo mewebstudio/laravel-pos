@@ -14,7 +14,7 @@
 
 ### Minimum Gereksinimler
 - PHP >= 7.4
-- mews/pos ^1.6
+- mews/pos ^1.7
 - laravel 8, 9, 10, 11, 12
 
 ### Kurulum

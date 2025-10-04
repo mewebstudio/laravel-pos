@@ -51,6 +51,9 @@ return [
 
                 // GarantiPos: ProvisionPassword
                 'refund_user_password' => null,
+                
+                // PayForPos: MbrId
+                'mbr_id'               => null,
             ],
             'gateway_endpoints' => [ // Required
                  'payment_api'     => null, // Required
@@ -58,7 +61,12 @@ return [
                  'gateway_3d_host' => null,
                  'query_api'       => null,
             ],
-            'test_mode'         => false,
+            'gateway_configs' => [ // optional
+                'test_mode' => false, // default: false
+                // Hash kontrolü kütühaneden dolayı başarısız sonuçlanıyorsa bu ayarla devre dışı bırakılabilir.
+                // Ancak hash kontrolünün devre dışı bırakılması güvenlik açığı oluşturabilir.
+                'disable_3d_hash_check' => false, // default: false
+            ],
         ],
     ],
 ];
@@ -84,7 +92,6 @@ return [
         'estpos_payten'         => [
             'gateway_class'     => \Mews\Pos\Gateways\EstV3Pos::class,
             'lang'              => \Mews\Pos\PosInterface::LANG_TR, // optional
-            'test_mode'         => true, // optional
             'credentials'       => [
                 'payment_model' => \Mews\Pos\PosInterface::MODEL_3D_SECURE,
                 'merchant_id'   => '700XXXXXXX',
@@ -134,11 +141,32 @@ return [
                 'user_name'     => 'QNB_API_XXXXXXXX', // UserCode: Otorizasyon sistemi kullanıcı kodu.
                 'user_password' => 'XXXXXXXX', // Otorizasyon sistemi kullanıcı şifresi.
                 'enc_key'       => 'XXXXXXXX', // MerchantPass: 3D Secure şifresidir.
+                'mbr_id'        => \Mews\Pos\Entity\Account\PayForAccount::MBR_ID_FINANSBANK, // veya MBR_ID_ZIRAAT_KATILIM (Kurum Kodu)
             ],
             'gateway_endpoints' => [
                 'payment_api'     => 'https://vpostest.qnbfinansbank.com/Gateway/XMLGate.aspx',
                 'gateway_3d'      => 'https://vpostest.qnbfinansbank.com/Gateway/Default.aspx',
                 'gateway_3d_host' => 'https://vpostest.qnbfinansbank.com/Gateway/3DHost.aspx',
+            ],
+        ],
+        'payfor_ziraat_katilim'     => [
+            'gateway_class'     => \Mews\Pos\Gateways\PayForPos::class,
+            'credentials'       => [
+                'payment_model' => \Mews\Pos\PosInterface::MODEL_3D_SECURE,
+                'merchant_id'   => '08530000XXXXXXXX', // Üye İşyeri Numarası.
+                'user_name'     => 'ZIRAAT_KATILIM_API_XXXXXXXX', // UserCode: Otorizasyon sistemi kullanıcı kodu.
+                'user_password' => 'XXXXXXXX', // Otorizasyon sistemi kullanıcı şifresi.
+                'enc_key'       => 'XXXXXXXX', // MerchantPass: 3D Secure şifresidir.
+                'mbr_id'        => \Mews\Pos\Entity\Account\PayForAccount::MBR_ID_ZIRAAT_KATILIM, // (Kurum Kodu)
+            ],
+            'gateway_configs'   => [
+                // Ziraat Katilim için hash kontrolü çalışmıyor. O yüzden devre dışı bırakıyoruz.
+                'disable_3d_hash_check' => true,
+            ],
+            'gateway_endpoints' => [
+                'payment_api'     => 'https://payfortestziraatkatilim.cordisnetwork.com/Mpi/XMLGate.aspx',
+                'gateway_3d'      => 'https://payfortestziraatkatilim.cordisnetwork.com/Mpi/Default.aspx',
+                'gateway_3d_host' => 'https://payfortestziraatkatilim.cordisnetwork.com/Mpi/3DHost.aspx',
             ],
         ],
         'garanti'               => [
@@ -156,6 +184,9 @@ return [
             'gateway_endpoints' => [
                 'payment_api' => 'https://sanalposprovtest.garantibbva.com.tr/VPServlet',
                 'gateway_3d'  => 'https://sanalposprovtest.garantibbva.com.tr/servlet/gt3dengine',
+            ],
+            'gateway_configs' => [ // optional
+                'test_mode' => true, // test ortamı için true
             ],
         ],
         'interpos_denizbank'    => [
@@ -181,6 +212,10 @@ return [
                 'terminal_id'   => '40XXXXXXXX', // CustomerId: Üye işyerinin Kuveyt Türk'te yer SanalPos için kullanılabilecek hesaba ait müşteri numarasıdır.
                 'user_name'     => 'apiXXXXXXXX', // UserName: https://kurumsal.kuveytturk.com.tr adresine login olarak kullanıcı işlemleri sayfasında APİ rolünde kullanıcı oluşturulmalıdır.
                 'enc_key'       => 'ApiXXXXXXXX', // Password: Oluşturulan APİ kullanıcısının şifre bilgisidir.
+            ],
+            'gateway_configs' => [
+                // Testlerinizi SSL olmayan ortamda yapıyorsanız true yapmanız gerekir.
+                'test_mode' => true,
             ],
             'gateway_endpoints' => [
                 'payment_api' => 'https://boatest.kuveytturk.com.tr/boa.virtualpos.services/Home',
