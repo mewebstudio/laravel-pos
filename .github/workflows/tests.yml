@@ -1,0 +1,57 @@
+name: Tests
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - php: '8.0'
+            testbench: '^6.0'
+          - php: '8.1'
+            testbench: '^7.0'
+          - php: '8.1'
+            testbench: '^8.17'
+          - php: '8.2'
+            testbench: '^9.0'
+          - php: '8.2'
+            testbench: '^10.0'
+          - php: '8.3'
+            testbench: '^11.0'
+          - php: '8.4'
+            testbench: '^11.0'
+
+    name: PHP ${{ matrix.php }} / testbench ${{ matrix.testbench }}
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          coverage: none
+
+      - name: Cache Composer packages
+        uses: actions/cache@v5
+        with:
+          path: vendor
+          key: php-${{ matrix.php }}-testbench-${{ matrix.testbench }}-${{ hashFiles('composer.json') }}
+
+      - name: Configure Composer
+        run: composer config --global policy.advisories.block false
+
+      - name: Pin testbench version
+        run: composer require "orchestra/testbench:${{ matrix.testbench }}" --no-interaction --no-update
+
+      - name: Install dependencies
+        run: composer update --no-interaction --prefer-dist --no-progress
+
+      - name: Run tests
+        run: ./vendor/bin/phpunit
