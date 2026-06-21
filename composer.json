@@ -1,7 +1,7 @@
 {
 	"name": "mews/laravel-pos",
-	"description": "Laravel 11 Pos Package",
-	"keywords": ["laravel11 pos", "laravel11 sanal pos"],
+	"description": "Laravel Pos Package",
+	"keywords": ["laravel pos", "laravel sanal pos"],
 	"homepage": "https://github.com/mewebstudio/laravel-pos",
 	"minimum-stability": "stable",
 	"license": "MIT",
@@ -21,8 +21,8 @@
 	],
 	"require": {
 		"php": ">=7.4",
-		"illuminate/config": "^8.0|^9.0|^10.0|^11.0|^12.0",
-		"illuminate/support": "^8.0|^9.0|^10.0|^11.0|^12.0",
+		"illuminate/config": "^8.0|^9.0|^10.0|^11.0|^12.0|^13.0",
+		"illuminate/support": "^8.0|^9.0|^10.0|^11.0|^12.0|^13.0",
 		"mews/pos": "^1.7"
 	},
 	"require-dev": {

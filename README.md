@@ -15,7 +15,7 @@
 ### Minimum Gereksinimler
 - PHP >= 7.4
 - mews/pos ^1.7
-- laravel 8, 9, 10, 11, 12
+- laravel >= v8
 
 ### Kurulum
 1. 
@@ -74,7 +74,7 @@
 
 3. PHP Session kullanıyorsanız 3D ödemeler için session'i alttaki şekilde ayarlamanız gerekir.
     
-    **Laravel 11, 12** için environment değişkenleri şu şekilde olacak:
+    **Laravel 11 ve üzeri** için environment değişkenleri şu şekilde olacak:
     ```
     SESSION_SECURE_COOKIE=true
     SESSION_SAME_SITE=Lax # ya da SESSION_SAME_SITE=None deneyiniz.
@@ -93,7 +93,7 @@
 
 4. 3D ödemelerde bankadan websiteye geri redirect edilecek URL'larda (success/fail URL'lar) CSRF kapatılması gerekir.
 
-   **Laravel 11, 12** `withMiddleware()` method'la ayarı yapabilirsiniz.
+   **Laravel 11 ve üzeri** `withMiddleware()` method'la ayarı yapabilirsiniz.
 
     ```php
         <?php
