@@ -12,6 +12,7 @@
 - [Troubelshoots](#troubleshoots)
 - [Konfigurasyon Yapısı ve Örnekler](./docs/EXAMPLE_CONFIGURATIONS.md)
 - [API ve 3D Form verisini degiştirme](./docs/EXAMPLE-API-ISTEK-VE-3D-FORM-VERSINI-DEGISTIRME.md)
+- [Yeni Gateway için Özel AccountFactory Kullanımı](./docs/CUSTOM-ACCOUNT-FACTORY.md)
 
 ### Minimum Gereksinimler
 - PHP >= 7.4
