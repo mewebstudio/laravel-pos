@@ -32,8 +32,7 @@
     # /config/laravel-pos.php
     return [
         'banks' => [
-            # array keyleri unique olmalıdır, bu keylerle Controller'larda su sekilde erisilebilir:
-            # $this->container->get('laravel-pos:gateway:kuveytpos');
+            # array keyleri unique olmalıdır
             'kuveytpos' => [ # ilk sıradaki banka injection için default olur.
                 'gateway_class'     => \Mews\Pos\Gateways\KuveytPos::class,
                 'lang'              => \Mews\Pos\PosInterface::LANG_TR,

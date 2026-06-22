@@ -6,6 +6,7 @@ use Mews\LaravelPos\LaravelPosServiceProvider;
 use Mews\Pos\Gateways\EstPos;
 use Mews\Pos\Gateways\GarantiPos;
 use Mews\Pos\PosInterface;
+
 use Orchestra\Testbench\TestCase;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\Http\Client\ClientInterface;
@@ -77,6 +78,16 @@ class LaravelPosServiceProviderTest extends TestCase
         $gateways = iterator_to_array($this->app->tagged('laravel-pos:gateway'));
 
         $this->assertCount(2, $gateways);
+    }
+
+    public function test_all_access_paths_return_the_same_instance(): void
+    {
+        $registry = $this->app->make(\Mews\LaravelPos\GatewayRegistry::class);
+        $viaKey   = $this->app->make('laravel-pos:gateway:est_bank');
+        $tagged   = iterator_to_array($this->app->tagged('laravel-pos:gateway'));
+
+        $this->assertSame($viaKey, $registry->gateway('est_bank'));
+        $this->assertSame($viaKey, $tagged[0]);
     }
 
     public function test_config_is_publishable(): void

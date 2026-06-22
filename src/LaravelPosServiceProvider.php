@@ -6,7 +6,7 @@ use Http\Discovery\Psr18ClientDiscovery;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Support\ServiceProvider;
 use Mews\LaravelPos\EventDispatcher\EventDispatcher;
-use Mews\LaravelPos\Factory\GatewayFactory;
+use Mews\LaravelPos\GatewayRegistry;
 use Mews\Pos\PosInterface;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\Http\Client\ClientInterface;
@@ -38,38 +38,33 @@ class LaravelPosServiceProvider extends ServiceProvider {
      */
     public function register()
     {
-        $this->app->singleton(GatewayRegistry::class);
+        $this->app->singletonIf(EventDispatcherInterface::class, fn () => new EventDispatcher());
+        $this->app->singletonIf(ClientInterface::class, fn () => Psr18ClientDiscovery::find());
+
+        $this->app->singleton(GatewayRegistry::class, function (Application $app) {
+            return new GatewayRegistry(
+                config('laravel-pos.banks') ?? [],
+                $app->make(EventDispatcherInterface::class),
+                $app->make(LoggerInterface::class),
+                $app->make(ClientInterface::class),
+            );
+        });
 
         $banks = config('laravel-pos.banks');
-        if (null === $banks) {
+        if (empty($banks)) {
             return;
         }
 
-        $this->app->singletonIf(EventDispatcherInterface::class, function (Application $app) {
-            return new EventDispatcher();
-        });
-        $this->app->singletonIf(ClientInterface::class, function (Application $app) {
-            return Psr18ClientDiscovery::find();
-            // return Http::buildClient(); // this one gives Undefined array key "laravel_data" error when we make HTTP request
+        $firstKey = array_key_first($banks);
+        $this->app->singleton(PosInterface::class, function (Application $app) use ($firstKey) {
+            return $app->make(GatewayRegistry::class)->gateway($firstKey);
         });
 
-        $i = 0;
-        foreach ($banks as $bankKey => $bankConfig) {
+        foreach (array_keys($banks) as $bankKey) {
             $id = "laravel-pos:gateway:$bankKey";
-            $this->app->singleton($id, function(Application $app) use ($bankKey, $bankConfig) {
-                return GatewayFactory::create(
-                    $bankKey,
-                    $bankConfig,
-                    $app->make(EventDispatcherInterface::class),
-                    $app->make(LoggerInterface::class),
-                    $app->make(ClientInterface::class),
-                );
+            $this->app->singleton($id, function (Application $app) use ($bankKey) {
+                return $app->make(GatewayRegistry::class)->gateway($bankKey);
             });
-            if ($i === 0) {
-                // set default to inject for PosInterface
-                $this->app->singleton(PosInterface::class, $id);
-                $i++;
-            }
             $this->app->tag($id, 'laravel-pos:gateway');
         }
     }
