@@ -233,6 +233,7 @@ class AccountFactoryTest extends TestCase
     public function test_throws_domain_exception_for_unknown_gateway(): void
     {
         $this->expectException(\DomainException::class);
+        $this->expectExceptionMessageMatches('/stdClass/');
 
         AccountFactory::create(\stdClass::class, 'test_bank', [
             'payment_model' => PosInterface::MODEL_NON_SECURE,

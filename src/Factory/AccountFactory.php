@@ -145,7 +145,7 @@ class AccountFactory
         }
 
         throw new \DomainException(
-            \sprintf('Can not create matching Account object for % gateway', $gatewayClass)
+            \sprintf('Can not create matching Account object for %s gateway', $gatewayClass)
         );
     }
 }
