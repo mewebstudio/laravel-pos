@@ -12,15 +12,27 @@ use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\Http\Client\ClientInterface;
 use Psr\Log\LoggerInterface;
 
+/** @internal */
 class GatewayFactory
 {
-    public static function create(
-        string                   $name,
-        array                    $options,
+    private AccountFactoryInterface $accountFactory;
+    private EventDispatcherInterface $eventDispatcher;
+    private LoggerInterface $logger;
+    private ClientInterface $client;
+
+    public function __construct(
+        AccountFactoryInterface  $accountFactory,
         EventDispatcherInterface $eventDispatcher,
         LoggerInterface          $logger,
         ClientInterface          $client
-    ): PosInterface
+    ) {
+        $this->accountFactory  = $accountFactory;
+        $this->eventDispatcher = $eventDispatcher;
+        $this->logger          = $logger;
+        $this->client          = $client;
+    }
+
+    public function create(string $name, array $options): PosInterface
     {
         $credentials  = $options['credentials'];
         $gatewayClass = $options['gateway_class'];
@@ -30,22 +42,22 @@ class GatewayFactory
             );
         }
 
-        $account            = AccountFactory::create(
+        $account            = $this->accountFactory->create(
             $gatewayClass,
             $name,
             $credentials,
             $options['lang'] ?? PosInterface::LANG_TR
         );
-        $crypt              = CryptFactory::createGatewayCrypt($gatewayClass, $logger);
+        $crypt              = CryptFactory::createGatewayCrypt($gatewayClass, $this->logger);
         $requestDataMapper  = RequestDataMapperFactory::createGatewayRequestMapper(
             $gatewayClass,
-            $eventDispatcher,
+            $this->eventDispatcher,
             $crypt
         );
         $responseDataMapper = ResponseDataMapperFactory::createGatewayResponseMapper(
             $gatewayClass,
             $requestDataMapper,
-            $logger
+            $this->logger
         );
         $serializer         = SerializerFactory::createGatewaySerializer($gatewayClass);
 
@@ -53,17 +65,18 @@ class GatewayFactory
         $gateway = new $gatewayClass(
             [
                 'gateway_endpoints' => $options['gateway_endpoints'],
-                'gateway_configs' => $options['gateway_configs'] ?? [],
+                'gateway_configs'   => $options['gateway_configs'] ?? [],
             ],
             $account,
             $requestDataMapper,
             $responseDataMapper,
             $serializer,
-            $eventDispatcher,
-            HttpClientFactory::createHttpClient($client),
-            $logger,
+            $this->eventDispatcher,
+            HttpClientFactory::createHttpClient($this->client),
+            $this->logger,
         );
 
+        // todo remove this in next major version
         if (!isset($options['gateway_configs']['test_mode']) && isset($options['test_mode'])) {
             $gateway->setTestMode($options['test_mode']);
         }

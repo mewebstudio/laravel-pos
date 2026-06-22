@@ -57,7 +57,7 @@ return [
             ],
             'gateway_endpoints' => [ // Required
                  'payment_api'     => null, // Required
-                 'gateway_3d'      => null, // Required
+                 'gateway_3d'      => null, // Required for 3D payment models
                  'gateway_3d_host' => null,
                  'query_api'       => null,
             ],
@@ -144,9 +144,9 @@ return [
                 'mbr_id'        => \Mews\Pos\Entity\Account\PayForAccount::MBR_ID_FINANSBANK, // veya MBR_ID_ZIRAAT_KATILIM (Kurum Kodu)
             ],
             'gateway_endpoints' => [
-                'payment_api'     => 'https://vpostest.qnbfinansbank.com/Gateway/XMLGate.aspx',
-                'gateway_3d'      => 'https://vpostest.qnbfinansbank.com/Gateway/Default.aspx',
-                'gateway_3d_host' => 'https://vpostest.qnbfinansbank.com/Gateway/3DHost.aspx',
+                'payment_api'     => 'https://vpostest.qnb.com.tr/Gateway/XMLGate.aspx',
+                'gateway_3d'      => 'https://vpostest.qnb.com.tr/Gateway/Default.aspx',
+                'gateway_3d_host' => 'https://vpostest.qnb.com.tr/Gateway/3DHost.aspx',
             ],
         ],
         'payfor_ziraat_katilim'     => [

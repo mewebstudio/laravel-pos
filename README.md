@@ -7,15 +7,17 @@
 
 - [Minimum Gereksinimler](#minimum-gereksinimler)
 - [Kurulum](#kurulum)
+- [Gateway'lere Erişim](#gatewaylere-erişim)
 - [Kullanım (3D Secure Ödeme)](#3d-secure-odeme-ornek-kullanim)
 - [Troubelshoots](#troubleshoots)
 - [Konfigurasyon Yapısı ve Örnekler](./docs/EXAMPLE_CONFIGURATIONS.md)
 - [API ve 3D Form verisini degiştirme](./docs/EXAMPLE-API-ISTEK-VE-3D-FORM-VERSINI-DEGISTIRME.md)
+- [Yeni Gateway için Özel AccountFactory Kullanımı](./docs/CUSTOM-ACCOUNT-FACTORY.md)
 
 ### Minimum Gereksinimler
 - PHP >= 7.4
 - mews/pos ^1.7
-- laravel 8, 9, 10, 11, 12
+- laravel >= v8
 
 ### Kurulum
 1. 
@@ -31,8 +33,7 @@
     # /config/laravel-pos.php
     return [
         'banks' => [
-            # array keyleri unique olmalıdır, bu keylerle Controller'larda su sekilde erisilebilir:
-            # $this->container->get('laravel-pos:gateway:kuveytpos');
+            # array keyleri unique olmalıdır
             'kuveytpos' => [ # ilk sıradaki banka injection için default olur.
                 'gateway_class'     => \Mews\Pos\Gateways\KuveytPos::class,
                 'lang'              => \Mews\Pos\PosInterface::LANG_TR,
@@ -74,7 +75,7 @@
 
 3. PHP Session kullanıyorsanız 3D ödemeler için session'i alttaki şekilde ayarlamanız gerekir.
     
-    **Laravel 11, 12** için environment değişkenleri şu şekilde olacak:
+    **Laravel 11 ve üzeri** için environment değişkenleri şu şekilde olacak:
     ```
     SESSION_SECURE_COOKIE=true
     SESSION_SAME_SITE=Lax # ya da SESSION_SAME_SITE=None deneyiniz.
@@ -93,7 +94,7 @@
 
 4. 3D ödemelerde bankadan websiteye geri redirect edilecek URL'larda (success/fail URL'lar) CSRF kapatılması gerekir.
 
-   **Laravel 11, 12** `withMiddleware()` method'la ayarı yapabilirsiniz.
+   **Laravel 11 ve üzeri** `withMiddleware()` method'la ayarı yapabilirsiniz.
 
     ```php
         <?php
@@ -196,6 +197,27 @@
     }
     ```
 
+###  Gateway'lere Erişim
+
+Birden fazla banka yapılandırıldığında`GatewayRegistry` veya `LaravelPos`
+facade'i ile gateway'e erişebilirsiniz:
+
+```php
+use Mews\LaravelPos\GatewayRegistry;
+use Mews\LaravelPos\Facades\LaravelPos;
+
+// Constructor injection
+public function __construct(private GatewayRegistry $gatewayRegistry) {}
+$pos = $this->gatewayRegistry->gateway('kuveytpos'); // PosInterface
+
+// Facade
+$pos = LaravelPos::gateway('kuveytpos');
+
+// Tüm gateway'ler
+$all = $this->gatewayRegistry->all(); // PosInterface[]
+```
+
+Bilinmeyen bir `$bankKey` verilirse `\InvalidArgumentException` fırlatılır.
 
 
 ### 3D Secure Odeme Ornek Kullanim
@@ -225,17 +247,6 @@ class ThreeDSecurePaymentController extends Controller
         private PosInterface $pos,
     ) {
     }
-    
-    // START: birden fazla banka ile örnek:
-//    public function __construct(
-//        private Container $container,
-//    ) {}
-//    
-//    private function getPosService(string $bank): PosInterface
-//    {
-//        return $this->container->get('laravel-pos:gateway:'.$bank);
-//    }
-    // END: birden fazla banka ile örnek
 
     /**
      * route: /payment/3d/form

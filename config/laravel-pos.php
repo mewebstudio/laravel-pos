@@ -51,7 +51,7 @@ return [
             ],
             'gateway_endpoints' => [ // Required
                 'payment_api'     => null, // Required
-                'gateway_3d'      => null, // Required
+                'gateway_3d'      => null, // Required for 3D payment models
                 'gateway_3d_host' => null,
                 'query_api'       => null,
             ],
