@@ -12,6 +12,7 @@ use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\Http\Client\ClientInterface;
 use Psr\Log\LoggerInterface;
 
+/** @internal */
 class GatewayFactory
 {
     private AccountFactoryInterface $accountFactory;
@@ -75,6 +76,7 @@ class GatewayFactory
             $this->logger,
         );
 
+        // todo remove this in next major version
         if (!isset($options['gateway_configs']['test_mode']) && isset($options['test_mode'])) {
             $gateway->setTestMode($options['test_mode']);
         }

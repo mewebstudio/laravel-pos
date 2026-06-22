@@ -24,6 +24,7 @@ use Mews\Pos\Gateways\ToslaPos;
 use Mews\Pos\Gateways\VakifKatilimPos;
 use Mews\Pos\PosInterface;
 
+/** @internal */
 class AccountFactory implements AccountFactoryInterface
 {
     /**
