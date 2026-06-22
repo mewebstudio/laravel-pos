@@ -83,7 +83,7 @@ class LaravelPosServiceProviderTest extends TestCase
 
     public function test_all_banks_are_tagged(): void
     {
-        $gateways = iterator_to_array($this->app->tagged('laravel-pos:gateway'));
+        $gateways = [...$this->app->tagged('laravel-pos:gateway')];
 
         $this->assertCount(2, $gateways);
     }
@@ -92,7 +92,7 @@ class LaravelPosServiceProviderTest extends TestCase
     {
         $registry = $this->app->make(\Mews\LaravelPos\GatewayRegistry::class);
         $viaKey   = $this->app->make('laravel-pos:gateway:est_bank');
-        $tagged   = iterator_to_array($this->app->tagged('laravel-pos:gateway'));
+        $tagged   = [...$this->app->tagged('laravel-pos:gateway')];
 
         $this->assertSame($viaKey, $registry->gateway('est_bank'));
         $this->assertSame($viaKey, $tagged[0]);

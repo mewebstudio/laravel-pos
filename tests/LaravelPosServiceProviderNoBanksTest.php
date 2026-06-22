@@ -26,7 +26,7 @@ class LaravelPosServiceProviderNoBanksTest extends TestCase
 
     public function test_no_gateways_tagged_when_banks_is_null(): void
     {
-        $gateways = iterator_to_array($this->app->tagged('laravel-pos:gateway'));
+        $gateways = [...$this->app->tagged('laravel-pos:gateway')];
 
         $this->assertEmpty($gateways);
     }
