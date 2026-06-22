@@ -258,7 +258,7 @@ class ThreeDSecurePaymentController extends Controller
     
         // START: birden fazla banka ile örnek
 //        $secilenBanka = $request->get('installment') > 1 ? 'kuveytpos' : 'estpos_payten';
-//        $this->pos = $this->posService($secilenBanka);
+//        $this->pos = \Mews\LaravelPos\Facades\LaravelPos::gateway($secilenBanka);
 //        $session->set('secilen_banka', $secilenBanka);
         // END: birden fazla banka ile örnek 
 
