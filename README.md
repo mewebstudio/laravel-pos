@@ -318,7 +318,8 @@ class ThreeDSecurePaymentController extends Controller
         $session = $request->getSession();
 
         // START: birden fazla banka ile örnek
-        // $this->pos = $this->posService($session->get('secilen_banka'));
+        // $secilenBanka = $session->get('secilen_banka');
+        // $this->pos = \Mews\LaravelPos\Facades\LaravelPos::gateway($secilenBanka);
         // END: birden fazla banka ile örnek 
         
         $transaction = $session->get('tx', PosInterface::TX_TYPE_PAY_AUTH);
