@@ -42,7 +42,10 @@
 		"laravel": {
 			"providers": [
 				"Mews\\LaravelPos\\LaravelPosServiceProvider"
-			]
+			],
+			"aliases": {
+				"LaravelPos": "Mews\\LaravelPos\\Facades\\LaravelPos"
+			}
 		}
 	},
 	"config": {

@@ -7,6 +7,7 @@
 
 - [Minimum Gereksinimler](#minimum-gereksinimler)
 - [Kurulum](#kurulum)
+- [Gateway'lere Erişim](#gatewaylere-erişim)
 - [Kullanım (3D Secure Ödeme)](#3d-secure-odeme-ornek-kullanim)
 - [Troubelshoots](#troubleshoots)
 - [Konfigurasyon Yapısı ve Örnekler](./docs/EXAMPLE_CONFIGURATIONS.md)
@@ -196,6 +197,27 @@
     }
     ```
 
+###  Gateway'lere Erişim
+
+Birden fazla banka yapılandırıldığında`GatewayRegistry` veya `LaravelPos`
+facade'i ile gateway'e erişebilirsiniz:
+
+```php
+use Mews\LaravelPos\GatewayRegistry;
+use Mews\LaravelPos\Facades\LaravelPos;
+
+// Constructor injection
+public function __construct(private GatewayRegistry $gatewayRegistry) {}
+$pos = $this->gatewayRegistry->gateway('kuveytpos'); // PosInterface
+
+// Facade
+$pos = LaravelPos::gateway('kuveytpos');
+
+// Tüm gateway'ler
+$all = $this->gatewayRegistry->all(); // PosInterface[]
+```
+
+Bilinmeyen bir `$bankKey` verilirse `\InvalidArgumentException` fırlatılır.
 
 
 ### 3D Secure Odeme Ornek Kullanim
@@ -225,17 +247,6 @@ class ThreeDSecurePaymentController extends Controller
         private PosInterface $pos,
     ) {
     }
-    
-    // START: birden fazla banka ile örnek:
-//    public function __construct(
-//        private Container $container,
-//    ) {}
-//    
-//    private function getPosService(string $bank): PosInterface
-//    {
-//        return $this->container->get('laravel-pos:gateway:'.$bank);
-//    }
-    // END: birden fazla banka ile örnek
 
     /**
      * route: /payment/3d/form
@@ -441,16 +452,6 @@ Route::match(['GET','POST'], '/payment/3d/response', [\App\Http\Controllers\Thre
    </script>
 @endif
 ```
-
-### Tüm gateway'lere erişim
-
-Tüm yapılandırılmış gateway'lere `laravel-pos:gateway` etiketiyle erişebilirsiniz:
-
-```php
-$gateways = app()->tagged('laravel-pos:gateway'); // iterable, her eleman PosInterface
-```
-
-Birden fazla bankayı döngüyle kullanmak istediğinizde faydalıdır.
 
 ### Troubleshoots
 

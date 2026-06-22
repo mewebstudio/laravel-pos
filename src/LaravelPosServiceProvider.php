@@ -38,6 +38,8 @@ class LaravelPosServiceProvider extends ServiceProvider {
      */
     public function register()
     {
+        $this->app->singleton(GatewayRegistry::class);
+
         $banks = config('laravel-pos.banks');
         if (null === $banks) {
             return;
