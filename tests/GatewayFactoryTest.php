@@ -6,7 +6,6 @@ use Mews\LaravelPos\EventDispatcher\EventDispatcher;
 use Mews\LaravelPos\Factory\AccountFactory;
 use Mews\LaravelPos\Factory\AccountFactoryInterface;
 use Mews\LaravelPos\Factory\GatewayFactory;
-use Mews\Pos\Entity\Account\AbstractPosAccount;
 use Mews\Pos\Gateways\EstPos;
 use Mews\Pos\PosInterface;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -18,14 +17,7 @@ class GatewayFactoryTest extends TestCase
 {
     public function test_creates_pos_interface_instance(): void
     {
-        $gateway = GatewayFactory::create(
-            'test_bank',
-            self::baseConfig(),
-            new EventDispatcher(),
-            $this->createStub(LoggerInterface::class),
-            $this->createStub(ClientInterface::class),
-            new AccountFactory(),
-        );
+        $gateway = $this->makeFactory()->create('test_bank', self::baseConfig());
 
         $this->assertInstanceOf(PosInterface::class, $gateway);
         $this->assertInstanceOf(EstPos::class, $gateway);
@@ -35,13 +27,9 @@ class GatewayFactoryTest extends TestCase
     {
         $this->expectException(\InvalidArgumentException::class);
 
-        GatewayFactory::create(
+        $this->makeFactory()->create(
             'test_bank',
-            array_merge(self::baseConfig(), ['gateway_class' => \stdClass::class]),
-            new EventDispatcher(),
-            $this->createStub(LoggerInterface::class),
-            $this->createStub(ClientInterface::class),
-            new AccountFactory(),
+            array_merge(self::baseConfig(), ['gateway_class' => \stdClass::class])
         );
     }
 
@@ -78,22 +66,15 @@ class GatewayFactoryTest extends TestCase
     #[DataProvider('provide_test_mode_cases')]
     public function test_test_mode(array $configOverrides, bool $expectedTestMode): void
     {
-        $gateway = GatewayFactory::create(
-            'test_bank',
-            array_merge(self::baseConfig(), $configOverrides),
-            new EventDispatcher(),
-            $this->createStub(LoggerInterface::class),
-            $this->createStub(ClientInterface::class),
-            new AccountFactory(),
-        );
+        $gateway = $this->makeFactory()->create('test_bank', array_merge(self::baseConfig(), $configOverrides));
 
         $this->assertSame($expectedTestMode, $gateway->isTestMode());
     }
 
     public function test_delegates_account_creation_to_provided_factory(): void
     {
-        $mockFactory = $this->createMock(AccountFactoryInterface::class);
-        $mockFactory->expects($this->once())
+        $mockAccountFactory = $this->createMock(AccountFactoryInterface::class);
+        $mockAccountFactory->expects($this->once())
             ->method('create')
             ->willReturn((new AccountFactory())->create(
                 EstPos::class,
@@ -101,13 +82,16 @@ class GatewayFactoryTest extends TestCase
                 self::baseConfig()['credentials'],
             ));
 
-        GatewayFactory::create(
-            'test_bank',
-            self::baseConfig(),
+        $this->makeFactory($mockAccountFactory)->create('test_bank', self::baseConfig());
+    }
+
+    private function makeFactory(?AccountFactoryInterface $accountFactory = null): GatewayFactory
+    {
+        return new GatewayFactory(
+            $accountFactory ?? new AccountFactory(),
             new EventDispatcher(),
             $this->createStub(LoggerInterface::class),
             $this->createStub(ClientInterface::class),
-            $mockFactory,
         );
     }
 

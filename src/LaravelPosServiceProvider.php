@@ -8,6 +8,7 @@ use Illuminate\Support\ServiceProvider;
 use Mews\LaravelPos\EventDispatcher\EventDispatcher;
 use Mews\LaravelPos\Factory\AccountFactory;
 use Mews\LaravelPos\Factory\AccountFactoryInterface;
+use Mews\LaravelPos\Factory\GatewayFactory;
 use Mews\LaravelPos\GatewayRegistry;
 use Mews\Pos\PosInterface;
 use Psr\EventDispatcher\EventDispatcherInterface;
@@ -47,15 +48,17 @@ class LaravelPosServiceProvider extends ServiceProvider {
         $this->app->singleton(GatewayRegistry::class, function (Application $app) {
             return new GatewayRegistry(
                 config('laravel-pos.banks') ?? [],
-                $app->make(EventDispatcherInterface::class),
-                $app->make(LoggerInterface::class),
-                $app->make(ClientInterface::class),
-                $app->make(AccountFactoryInterface::class),
+                new GatewayFactory(
+                    $app->make(AccountFactoryInterface::class),
+                    $app->make(EventDispatcherInterface::class),
+                    $app->make(LoggerInterface::class),
+                    $app->make(ClientInterface::class),
+                ),
             );
         });
 
         $banks = config('laravel-pos.banks');
-        if (empty($banks)) {
+        if (null === $banks || [] === $banks) {
             return;
         }
 

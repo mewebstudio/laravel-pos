@@ -2,12 +2,8 @@
 
 namespace Mews\LaravelPos;
 
-use Mews\LaravelPos\Factory\AccountFactoryInterface;
 use Mews\LaravelPos\Factory\GatewayFactory;
 use Mews\Pos\PosInterface;
-use Psr\EventDispatcher\EventDispatcherInterface;
-use Psr\Http\Client\ClientInterface;
-use Psr\Log\LoggerInterface;
 
 class GatewayRegistry
 {
@@ -15,23 +11,12 @@ class GatewayRegistry
     private array $resolved = [];
 
     private array $banks;
-    private EventDispatcherInterface $eventDispatcher;
-    private LoggerInterface $logger;
-    private ClientInterface $httpClient;
-    private AccountFactoryInterface $accountFactory;
+    private GatewayFactory $gatewayFactory;
 
-    public function __construct(
-        array $banks,
-        AccountFactoryInterface $accountFactory,
-        EventDispatcherInterface $eventDispatcher,
-        LoggerInterface $logger,
-        ClientInterface $httpClient
-    ) {
-        $this->banks           = $banks;
-        $this->accountFactory  = $accountFactory;
-        $this->eventDispatcher = $eventDispatcher;
-        $this->logger          = $logger;
-        $this->httpClient      = $httpClient;
+    public function __construct(array $banks, GatewayFactory $gatewayFactory)
+    {
+        $this->banks          = $banks;
+        $this->gatewayFactory = $gatewayFactory;
     }
 
     public function gateway(string $bankKey): PosInterface
@@ -43,14 +28,7 @@ class GatewayRegistry
         }
 
         if (!isset($this->resolved[$bankKey])) {
-            $this->resolved[$bankKey] = GatewayFactory::create(
-                $bankKey,
-                $this->banks[$bankKey],
-                $this->accountFactory,
-                $this->eventDispatcher,
-                $this->logger,
-                $this->httpClient,
-            );
+            $this->resolved[$bankKey] = $this->gatewayFactory->create($bankKey, $this->banks[$bankKey]);
         }
 
         return $this->resolved[$bankKey];
