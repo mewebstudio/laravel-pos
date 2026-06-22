@@ -213,7 +213,7 @@ class AccountFactoryTest extends TestCase
         array  $credentials,
         string $expectedAccountClass
     ): void {
-        $account = AccountFactory::create($gatewayClass, 'test_bank', $credentials);
+        $account = (new AccountFactory())->create($gatewayClass, 'test_bank', $credentials);
 
         $this->assertInstanceOf($expectedAccountClass, $account);
     }
@@ -225,7 +225,7 @@ class AccountFactoryTest extends TestCase
         array  $credentials,
         string $_expectedAccountClass
     ): void {
-        $account = AccountFactory::create($gatewayClass, 'my_bank', $credentials);
+        $account = (new AccountFactory())->create($gatewayClass, 'my_bank', $credentials);
 
         $this->assertSame('my_bank', $account->getBank());
     }
@@ -235,14 +235,14 @@ class AccountFactoryTest extends TestCase
         $this->expectException(\DomainException::class);
         $this->expectExceptionMessageMatches('/stdClass/');
 
-        AccountFactory::create(\stdClass::class, 'test_bank', [
+        (new AccountFactory())->create(\stdClass::class, 'test_bank', [
             'payment_model' => PosInterface::MODEL_NON_SECURE,
         ]);
     }
 
     public function test_account_lang_is_passed_through(): void
     {
-        $account = AccountFactory::create(EstPos::class, 'test_bank', [
+        $account = (new AccountFactory())->create(EstPos::class, 'test_bank', [
             'payment_model' => PosInterface::MODEL_NON_SECURE,
             'merchant_id'   => '700655000200',
             'user_name'     => 'ISBANKAPI',
@@ -254,7 +254,7 @@ class AccountFactoryTest extends TestCase
 
     public function test_default_lang_is_turkish(): void
     {
-        $account = AccountFactory::create(EstPos::class, 'test_bank', [
+        $account = (new AccountFactory())->create(EstPos::class, 'test_bank', [
             'payment_model' => PosInterface::MODEL_NON_SECURE,
             'merchant_id'   => '700655000200',
             'user_name'     => 'ISBANKAPI',

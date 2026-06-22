@@ -6,6 +6,8 @@ use Http\Discovery\Psr18ClientDiscovery;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Support\ServiceProvider;
 use Mews\LaravelPos\EventDispatcher\EventDispatcher;
+use Mews\LaravelPos\Factory\AccountFactory;
+use Mews\LaravelPos\Factory\AccountFactoryInterface;
 use Mews\LaravelPos\GatewayRegistry;
 use Mews\Pos\PosInterface;
 use Psr\EventDispatcher\EventDispatcherInterface;
@@ -40,6 +42,7 @@ class LaravelPosServiceProvider extends ServiceProvider {
     {
         $this->app->singletonIf(EventDispatcherInterface::class, fn () => new EventDispatcher());
         $this->app->singletonIf(ClientInterface::class, fn () => Psr18ClientDiscovery::find());
+        $this->app->singletonIf(AccountFactoryInterface::class, AccountFactory::class);
 
         $this->app->singleton(GatewayRegistry::class, function (Application $app) {
             return new GatewayRegistry(
@@ -47,6 +50,7 @@ class LaravelPosServiceProvider extends ServiceProvider {
                 $app->make(EventDispatcherInterface::class),
                 $app->make(LoggerInterface::class),
                 $app->make(ClientInterface::class),
+                $app->make(AccountFactoryInterface::class),
             );
         });
 

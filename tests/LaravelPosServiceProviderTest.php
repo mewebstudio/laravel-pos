@@ -61,6 +61,14 @@ class LaravelPosServiceProviderTest extends TestCase
         );
     }
 
+    public function test_account_factory_interface_is_bound(): void
+    {
+        $this->assertInstanceOf(
+            \Mews\LaravelPos\Factory\AccountFactory::class,
+            $this->app->make(\Mews\LaravelPos\Factory\AccountFactoryInterface::class)
+        );
+    }
+
     public function test_gateway_resolved_by_bank_key(): void
     {
         $this->assertInstanceOf(PosInterface::class, $this->app->make('laravel-pos:gateway:est_bank'));

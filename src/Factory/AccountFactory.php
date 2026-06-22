@@ -2,6 +2,7 @@
 
 namespace Mews\LaravelPos\Factory;
 
+use Mews\LaravelPos\Factory\AccountFactoryInterface;
 use Mews\Pos\Entity\Account\AbstractPosAccount;
 use Mews\Pos\Entity\Account\PayFlexAccount;
 use Mews\Pos\Entity\Account\PayForAccount;
@@ -23,7 +24,7 @@ use Mews\Pos\Gateways\ToslaPos;
 use Mews\Pos\Gateways\VakifKatilimPos;
 use Mews\Pos\PosInterface;
 
-class AccountFactory
+class AccountFactory implements AccountFactoryInterface
 {
     /**
      * @param string $gatewayClass
@@ -36,7 +37,7 @@ class AccountFactory
      * @throws MissingAccountInfoException
      * @throws \DomainException
      */
-    public static function create(string $gatewayClass, string $name, array $credentials, string $lang = PosInterface::LANG_TR): AbstractPosAccount
+    public function create(string $gatewayClass, string $name, array $credentials, string $lang = PosInterface::LANG_TR): AbstractPosAccount
     {
         switch ($gatewayClass) {
             case EstPos::class:

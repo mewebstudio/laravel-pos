@@ -3,7 +3,10 @@
 namespace Mews\LaravelPos\Tests;
 
 use Mews\LaravelPos\EventDispatcher\EventDispatcher;
+use Mews\LaravelPos\Factory\AccountFactory;
+use Mews\LaravelPos\Factory\AccountFactoryInterface;
 use Mews\LaravelPos\Factory\GatewayFactory;
+use Mews\Pos\Entity\Account\AbstractPosAccount;
 use Mews\Pos\Gateways\EstPos;
 use Mews\Pos\PosInterface;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -21,6 +24,7 @@ class GatewayFactoryTest extends TestCase
             new EventDispatcher(),
             $this->createStub(LoggerInterface::class),
             $this->createStub(ClientInterface::class),
+            new AccountFactory(),
         );
 
         $this->assertInstanceOf(PosInterface::class, $gateway);
@@ -37,6 +41,7 @@ class GatewayFactoryTest extends TestCase
             new EventDispatcher(),
             $this->createStub(LoggerInterface::class),
             $this->createStub(ClientInterface::class),
+            new AccountFactory(),
         );
     }
 
@@ -79,9 +84,31 @@ class GatewayFactoryTest extends TestCase
             new EventDispatcher(),
             $this->createStub(LoggerInterface::class),
             $this->createStub(ClientInterface::class),
+            new AccountFactory(),
         );
 
         $this->assertSame($expectedTestMode, $gateway->isTestMode());
+    }
+
+    public function test_delegates_account_creation_to_provided_factory(): void
+    {
+        $mockFactory = $this->createMock(AccountFactoryInterface::class);
+        $mockFactory->expects($this->once())
+            ->method('create')
+            ->willReturn((new AccountFactory())->create(
+                EstPos::class,
+                'test_bank',
+                self::baseConfig()['credentials'],
+            ));
+
+        GatewayFactory::create(
+            'test_bank',
+            self::baseConfig(),
+            new EventDispatcher(),
+            $this->createStub(LoggerInterface::class),
+            $this->createStub(ClientInterface::class),
+            $mockFactory,
+        );
     }
 
     /**

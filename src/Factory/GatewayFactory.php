@@ -2,6 +2,7 @@
 
 namespace Mews\LaravelPos\Factory;
 
+use Mews\LaravelPos\Factory\AccountFactoryInterface;
 use Mews\Pos\Factory\CryptFactory;
 use Mews\Pos\Factory\HttpClientFactory;
 use Mews\Pos\Factory\RequestDataMapperFactory;
@@ -17,6 +18,7 @@ class GatewayFactory
     public static function create(
         string                   $name,
         array                    $options,
+        AccountFactoryInterface  $accountFactory,
         EventDispatcherInterface $eventDispatcher,
         LoggerInterface          $logger,
         ClientInterface          $client
@@ -30,7 +32,7 @@ class GatewayFactory
             );
         }
 
-        $account            = AccountFactory::create(
+        $account            = $accountFactory->create(
             $gatewayClass,
             $name,
             $credentials,
