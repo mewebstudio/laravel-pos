@@ -442,6 +442,16 @@ Route::match(['GET','POST'], '/payment/3d/response', [\App\Http\Controllers\Thre
 @endif
 ```
 
+### Tüm gateway'lere erişim
+
+Tüm yapılandırılmış gateway'lere `laravel-pos:gateway` etiketiyle erişebilirsiniz:
+
+```php
+$gateways = app()->tagged('laravel-pos:gateway'); // iterable, her eleman PosInterface
+```
+
+Birden fazla bankayı döngüyle kullanmak istediğinizde faydalıdır.
+
 ### Troubleshoots
 
 - Error: "_cURL error 60: SSL certificate problem: unable to get local issuer certificate (see https://curl.haxx.se/libcurl/c/libcurl-errors.html) for https://..._"
