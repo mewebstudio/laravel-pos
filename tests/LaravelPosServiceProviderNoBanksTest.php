@@ -4,6 +4,7 @@ namespace Mews\LaravelPos\Tests;
 
 use Mews\LaravelPos\LaravelPosServiceProvider;
 use Mews\Pos\PosInterface;
+use Mews\Pos\PosQuery\PosQueryInterface;
 use Orchestra\Testbench\TestCase;
 
 class LaravelPosServiceProviderNoBanksTest extends TestCase
@@ -29,5 +30,17 @@ class LaravelPosServiceProviderNoBanksTest extends TestCase
         $gateways = [...$this->app->tagged('laravel-pos:gateway')];
 
         $this->assertEmpty($gateways);
+    }
+
+    public function test_pos_query_interface_is_not_bound_when_banks_is_null(): void
+    {
+        $this->assertFalse($this->app->bound(PosQueryInterface::class));
+    }
+
+    public function test_no_queries_tagged_when_banks_is_null(): void
+    {
+        $queries = [...$this->app->tagged('laravel-pos:query')];
+
+        $this->assertEmpty($queries);
     }
 }

@@ -3,14 +3,14 @@
 namespace Mews\LaravelPos\Factory;
 
 use Mews\Pos\Factory\AccountFactory as MewsPosAccountFactory;
-use Mews\Pos\Factory\PosFactory;
-use Mews\Pos\PosInterface;
+use Mews\Pos\Factory\PosQueryFactory as MewsPosPosQueryFactory;
+use Mews\Pos\PosQuery\PosQueryInterface;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\Http\Client\ClientInterface;
 use Psr\Log\LoggerInterface;
 
 /** @internal */
-class GatewayFactory
+class PosQueryFactory
 {
     public function __construct(
         private EventDispatcherInterface $eventDispatcher,
@@ -19,28 +19,20 @@ class GatewayFactory
     ) {
     }
 
-    public function create(string $name, array $options): PosInterface
+    public function create(string $name, array $options): PosQueryInterface
     {
-        $gatewayClass = $options['gateway_class'];
-
-        if (!\in_array(PosInterface::class, \class_implements($gatewayClass), true)) {
-            throw new \InvalidArgumentException(
-                \sprintf('gateway_class must be implementation of %s', PosInterface::class)
-            );
-        }
-
         $account = MewsPosAccountFactory::createForGateway(
-            $gatewayClass,
+            $options['gateway_class'],
             $name,
             $options['credentials']
         );
 
         $config = [
-            'class'             => $gatewayClass,
+            'class'             => $options['gateway_class'],
             'gateway_endpoints' => $options['gateway_endpoints'],
             'gateway_configs'   => $options['gateway_configs'] ?? [],
         ];
 
-        return PosFactory::create($account, $config, $this->eventDispatcher, null, $this->client, $this->logger);
+        return MewsPosPosQueryFactory::create($account, $config, $this->eventDispatcher, $this->client, $this->logger);
     }
 }

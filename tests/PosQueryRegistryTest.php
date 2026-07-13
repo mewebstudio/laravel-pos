@@ -2,14 +2,16 @@
 
 namespace Mews\LaravelPos\Tests;
 
-use Mews\LaravelPos\GatewayRegistry;
 use Mews\LaravelPos\LaravelPosServiceProvider;
+use Mews\LaravelPos\PosQueryRegistry;
 use Mews\Pos\Gateway\AssecoPos;
 use Mews\Pos\Gateway\GarantiPos;
-use Mews\Pos\PosInterface;
+use Mews\Pos\PosQuery\AssecoPosQuery;
+use Mews\Pos\PosQuery\GarantiPosQuery;
+use Mews\Pos\PosQuery\PosQueryInterface;
 use Orchestra\Testbench\TestCase;
 
-class GatewayRegistryTest extends TestCase
+class PosQueryRegistryTest extends TestCase
 {
     protected function getPackageProviders($app): array
     {
@@ -28,55 +30,56 @@ class GatewayRegistryTest extends TestCase
 
     public function test_registry_is_bound(): void
     {
-        $this->assertInstanceOf(GatewayRegistry::class, $this->app->make(GatewayRegistry::class));
+        $this->assertInstanceOf(PosQueryRegistry::class, $this->app->make(PosQueryRegistry::class));
     }
 
-    public function test_gateway_returns_pos_interface(): void
+    public function test_pos_query_interface_is_bound_to_first_bank(): void
     {
-        $registry = $this->app->make(GatewayRegistry::class);
-
-        $this->assertInstanceOf(PosInterface::class, $registry->gateway('est_bank'));
+        $this->assertInstanceOf(PosQueryInterface::class, $this->app->make(PosQueryInterface::class));
+        $this->assertInstanceOf(AssecoPosQuery::class, $this->app->make(PosQueryInterface::class));
     }
 
-    public function test_gateway_returns_correct_class_per_bank_key(): void
+    public function test_query_resolved_by_bank_key(): void
     {
-        $registry = $this->app->make(GatewayRegistry::class);
-
-        $this->assertInstanceOf(AssecoPos::class, $registry->gateway('est_bank'));
-        $this->assertInstanceOf(GarantiPos::class, $registry->gateway('garanti_bank'));
+        $this->assertInstanceOf(PosQueryInterface::class, $this->app->make('laravel-pos:query:est_bank'));
+        $this->assertInstanceOf(PosQueryInterface::class, $this->app->make('laravel-pos:query:garanti_bank'));
     }
 
-    public function test_gateway_returns_same_singleton_instance(): void
+    public function test_each_bank_key_resolves_its_own_query_class(): void
     {
-        $registry = $this->app->make(GatewayRegistry::class);
-
-        $this->assertSame($registry->gateway('est_bank'), $registry->gateway('est_bank'));
+        $this->assertInstanceOf(AssecoPosQuery::class, $this->app->make('laravel-pos:query:est_bank'));
+        $this->assertInstanceOf(GarantiPosQuery::class, $this->app->make('laravel-pos:query:garanti_bank'));
     }
 
-    public function test_all_returns_all_configured_gateways(): void
+    public function test_all_queries_are_tagged(): void
     {
-        $registry = $this->app->make(GatewayRegistry::class);
+        $queries = [...$this->app->tagged('laravel-pos:query')];
+
+        $this->assertCount(2, $queries);
+    }
+
+    public function test_query_returns_same_singleton_instance(): void
+    {
+        $registry = $this->app->make(PosQueryRegistry::class);
+
+        $this->assertSame($registry->query('est_bank'), $registry->query('est_bank'));
+    }
+
+    public function test_all_returns_all_registered_queries(): void
+    {
+        $registry = $this->app->make(PosQueryRegistry::class);
 
         $this->assertCount(2, $registry->all());
     }
 
-    public function test_all_returns_pos_interface_instances(): void
+    public function test_query_throws_for_unknown_bank_key(): void
     {
-        $registry = $this->app->make(GatewayRegistry::class);
-
-        foreach ($registry->all() as $gateway) {
-            $this->assertInstanceOf(PosInterface::class, $gateway);
-        }
-    }
-
-    public function test_gateway_throws_for_unknown_bank_key(): void
-    {
-        $registry = $this->app->make(GatewayRegistry::class);
+        $registry = $this->app->make(PosQueryRegistry::class);
 
         $this->expectException(\InvalidArgumentException::class);
         $this->expectExceptionMessageMatches('/unknown_bank/');
 
-        $registry->gateway('unknown_bank');
+        $registry->query('unknown_bank');
     }
 
     public function test_registry_is_bound_even_when_no_banks_configured(): void
@@ -85,7 +88,7 @@ class GatewayRegistryTest extends TestCase
         $app['config']->set('laravel-pos.banks', null);
         $app->register(LaravelPosServiceProvider::class);
 
-        $this->assertInstanceOf(GatewayRegistry::class, $app->make(GatewayRegistry::class));
+        $this->assertInstanceOf(PosQueryRegistry::class, $app->make(PosQueryRegistry::class));
     }
 
     private function makeEstPosConfig(): array

@@ -26,7 +26,7 @@ final class Before3DFormHashCalculatedEventListener
 
     private function imeceKoduEkle(Before3DFormHashCalculatedEvent $event): void
     {
-        if ($event->getGatewayClass() !== \Mews\Pos\Gateways\EstV3Pos::class || $event->getGatewayClass() !== \Mews\Pos\Gateways\EstPos::class) {
+        if ($event->getGatewayClass() !== \Mews\Pos\Gateway\AssecoPos::class) {
             return;
         }
         // İşbank İmece Kart ile ödeme yaparken aşağıdaki verilerin eklenmesi gerekiyor:
@@ -45,7 +45,7 @@ final class Before3DFormHashCalculatedEventListener
 
     private function callbackUrlEkleme(Before3DFormHashCalculatedEvent $event): void
     {
-        if ($event->getGatewayClass() !== \Mews\Pos\Gateways\EstV3Pos::class) {
+        if ($event->getGatewayClass() !== \Mews\Pos\Gateway\AssecoPos::class) {
             return;
         }
         $formInputs                = $event->getFormInputs();
@@ -93,13 +93,13 @@ final class RequestDataPreparedEventListener
          * 5: Ekstre Erteleme
          * 6: Özel Vade Farkı
          */
-        if ($event->getGatewayClass() instanceof \Mews\Pos\Gateways\PosNetV1Pos) {
+        if ($event->getGatewayClass() === \Mews\Pos\Gateway\PosNetV1Pos::class) {
              // Albaraka PosNet KOICode ekleme
              $data            = $event->getRequestData();
              $data['KOICode'] = '1';
              $event->setRequestData($data);
         }
-        if ($event->getGatewayClass() instanceof \Mews\Pos\Gateways\PosNet) {
+        if ($event->getGatewayClass() === \Mews\Pos\Gateway\PosNetPos::class) {
              // Yapikredi PosNet KOICode ekleme
              $data            = $event->getRequestData();
              $data['sale']['koiCode'] = '1';
@@ -112,7 +112,7 @@ final class RequestDataPreparedEventListener
      */
     private function imeceKodEkle(RequestDataPreparedEvent $event): void
     {
-        if ($event->getGatewayClass() !== \Mews\Pos\Gateways\EstV3Pos::class || $event->getGatewayClass() !== \Mews\Pos\Gateways\EstPos::class) {
+        if ($event->getGatewayClass() !== \Mews\Pos\Gateway\AssecoPos::class) {
             return;
         }
 
@@ -135,12 +135,12 @@ final class RequestDataPreparedEventListener
         }
 
         $formVerisiniOlusturmakIcinApiIstegiGonderenGatewayler = [
-            \Mews\Pos\Gateways\PosNet::class,
-            \Mews\Pos\Gateways\KuveytPos::class,
-            \Mews\Pos\Gateways\ToslaPos::class,
-            \Mews\Pos\Gateways\VakifKatilimPos::class,
-            \Mews\Pos\Gateways\PayFlexV4Pos::class,
-            \Mews\Pos\Gateways\PayFlexCPV4Pos::class,
+            \Mews\Pos\Gateway\PosNetPos::class,
+            \Mews\Pos\Gateway\KuveytPos::class,
+            \Mews\Pos\Gateway\ToslaPos::class,
+            \Mews\Pos\Gateway\VakifKatilimPos::class,
+            \Mews\Pos\Gateway\PayFlexV4Pos::class,
+            \Mews\Pos\Gateway\PayFlexCPV4Pos::class,
         ];
 
         if (\in_array($event->getGatewayClass(), $formVerisiniOlusturmakIcinApiIstegiGonderenGatewayler, true)) {

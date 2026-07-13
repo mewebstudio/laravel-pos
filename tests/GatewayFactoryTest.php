@@ -3,10 +3,8 @@
 namespace Mews\LaravelPos\Tests;
 
 use Mews\LaravelPos\EventDispatcher\EventDispatcher;
-use Mews\LaravelPos\Factory\AccountFactory;
-use Mews\LaravelPos\Factory\AccountFactoryInterface;
 use Mews\LaravelPos\Factory\GatewayFactory;
-use Mews\Pos\Gateways\EstPos;
+use Mews\Pos\Gateway\AssecoPos;
 use Mews\Pos\PosInterface;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
@@ -20,7 +18,7 @@ class GatewayFactoryTest extends TestCase
         $gateway = $this->makeFactory()->create('test_bank', self::baseConfig());
 
         $this->assertInstanceOf(PosInterface::class, $gateway);
-        $this->assertInstanceOf(EstPos::class, $gateway);
+        $this->assertInstanceOf(AssecoPos::class, $gateway);
     }
 
     public function test_throws_for_non_pos_interface_gateway_class(): void
@@ -43,16 +41,6 @@ class GatewayFactoryTest extends TestCase
             true,
         ];
 
-        yield 'enabled via legacy option' => [
-            ['gateway_configs' => [], 'test_mode' => true],
-            true,
-        ];
-
-        yield 'gateway_configs takes precedence over legacy' => [
-            ['gateway_configs' => ['test_mode' => false], 'test_mode' => true],
-            false,
-        ];
-
         yield 'disabled by default' => [
             [],
             false,
@@ -71,24 +59,9 @@ class GatewayFactoryTest extends TestCase
         $this->assertSame($expectedTestMode, $gateway->isTestMode());
     }
 
-    public function test_delegates_account_creation_to_provided_factory(): void
-    {
-        $mockAccountFactory = $this->createMock(AccountFactoryInterface::class);
-        $mockAccountFactory->expects($this->once())
-            ->method('create')
-            ->willReturn((new AccountFactory())->create(
-                EstPos::class,
-                'test_bank',
-                self::baseConfig()['credentials'],
-            ));
-
-        $this->makeFactory($mockAccountFactory)->create('test_bank', self::baseConfig());
-    }
-
-    private function makeFactory(?AccountFactoryInterface $accountFactory = null): GatewayFactory
+    private function makeFactory(): GatewayFactory
     {
         return new GatewayFactory(
-            $accountFactory ?? new AccountFactory(),
             new EventDispatcher(),
             $this->createStub(LoggerInterface::class),
             $this->createStub(ClientInterface::class),
@@ -101,14 +74,12 @@ class GatewayFactoryTest extends TestCase
     private static function baseConfig(): array
     {
         return [
-            'gateway_class'     => EstPos::class,
-            'lang'              => PosInterface::LANG_TR,
+            'gateway_class'     => AssecoPos::class,
             'credentials'       => [
-                'payment_model' => PosInterface::MODEL_NON_SECURE,
                 'merchant_id'   => '700655000200',
                 'user_name'     => 'ISBANKAPI',
                 'user_password' => 'ISBANK07',
-                'enc_key'       => 'TRPS0200',
+                'secret_key'    => 'TRPS0200',
             ],
             'gateway_endpoints' => [
                 'payment_api'     => 'https://entegrasyon.asseco-see.com.tr/fim/api',

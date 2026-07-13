@@ -8,16 +8,16 @@
 - [Minimum Gereksinimler](#minimum-gereksinimler)
 - [Kurulum](#kurulum)
 - [Gateway'lere Erişim](#gatewaylere-erişim)
+- [PosQuery Kullanımı](#posquery-kullanımı)
 - [Kullanım (3D Secure Ödeme)](#3d-secure-odeme-ornek-kullanim)
 - [Troubelshoots](#troubleshoots)
 - [Konfigurasyon Yapısı ve Örnekler](./docs/EXAMPLE_CONFIGURATIONS.md)
-- [API ve 3D Form verisini degiştirme](./docs/EXAMPLE-API-ISTEK-VE-3D-FORM-VERSINI-DEGISTIRME.md)
-- [Yeni Gateway için Özel AccountFactory Kullanımı](./docs/CUSTOM-ACCOUNT-FACTORY.md)
+- [v1'den v2'ye Geçiş](./docs/UPGRADE-2.0.md)
 
 ### Minimum Gereksinimler
-- PHP >= 7.4
-- mews/pos ^1.7
-- laravel >= v8
+- PHP >= 8.0
+- mews/pos ^2.0
+- Laravel >= v8
 
 ### Kurulum
 1. 
@@ -35,33 +35,28 @@
         'banks' => [
             # array keyleri unique olmalıdır
             'kuveytpos' => [ # ilk sıradaki banka injection için default olur.
-                'gateway_class'     => \Mews\Pos\Gateways\KuveytPos::class,
-                'lang'              => \Mews\Pos\PosInterface::LANG_TR,
+                'gateway_class'     => \Mews\Pos\Gateway\KuveytPos::class,
                 'credentials'       => [
-                    'payment_model' => \Mews\Pos\PosInterface::MODEL_3D_SECURE,
-                    'merchant_id'   => 'xxx',
-                    'terminal_id'   => 'yyyyyyy',
-                    'user_name'     => 'zzzzzzz',
-                    'enc_key'       => 'www123',
+                    'merchant_id' => 'xxx',
+                    'terminal_id' => 'yyyyyyy', // CustomerId
+                    'user_name'   => 'zzzzzzz',
+                    'secret_key'  => 'www123',
                 ],
                 'gateway_configs'   => [
                     'test_mode' => true,
                 ],
                 'gateway_endpoints' => [
-                    'payment_api'     => 'https://boatest.kuveytturk.com.tr/boa.virtualpos.services/Home',
-                    'gateway_3d'      => 'https://boatest.kuveytturk.com.tr/boa.virtualpos.services/Home/ThreeDModelPayGate',
-                    'query_api'       => 'https://boatest.kuveytturk.com.tr/BOA.Integration.WCFService/BOA.Integration.VirtualPos/VirtualPosService.svc?wsdl',
+                    'payment_api' => 'https://boatest.kuveytturk.com.tr/boa.virtualpos.services/Home',
+                    'query_api'   => 'https://boatest.kuveytturk.com.tr/BOA.Integration.WCFService/BOA.Integration.VirtualPos/VirtualPosService.svc/Basic',
                 ],
             ],
-            'estpos_payten' => [
-                'gateway_class'     => \Mews\Pos\Gateways\EstV3Pos::class,
-                'lang'              => \Mews\Pos\PosInterface::LANG_TR,
+            'asseco_payten' => [
+                'gateway_class'     => \Mews\Pos\Gateway\AssecoPos::class,
                 'credentials'       => [
-                    'payment_model' => \Mews\Pos\PosInterface::MODEL_3D_SECURE,
                     'merchant_id'   => '7001132146464',
                     'user_name'     => 'ISBXXXXX',
                     'user_password' => 'ISBYYYYY',
-                    'enc_key'       => 'TRPZZZZZ',
+                    'secret_key'    => 'TRPZZZZZ',
                 ],
                 'gateway_endpoints' => [
                     'payment_api'     => 'https://entegrasyon.asseco-see.com.tr/fim/api',
@@ -131,75 +126,9 @@
     }
     ```
 
-5. **KuveytPos** için API isteklere ekstra alanlar eklemeniz gerekiyor, bunun için Event Listener'ları kullanabilirsiniz. Örnek:
-   
-    ```php
-    <?php
-    # /app/Listeners/KuveytPosV2RequestDataPreparedEventListener.php:
-    namespace App\Listeners;
-    
-    use Mews\Pos\Event\RequestDataPreparedEvent;
-    
-    /**
-     * KuveytPos TDV2.0.0 odemenin calismasi icin zorunlu eklenmesi gereken alan var.
-     */
-     class KuveytPosV2RequestDataPreparedEventListener
-    {
-        public function __invoke(RequestDataPreparedEvent $event): void
-        {
-            if ($event->getGatewayClass() !== \Mews\Pos\Gateways\KuveytPos::class) {
-                return;
-            }
-            /**
-             * ekstra eklenmesi gereken verileri isteseniz $order icine ekleyip sonra o verilere
-             * $event->getOrder() ile erisebilirsiniz.
-             */
-            $additionalRequestDataForKuveyt = [
-                'DeviceData'     => [
-                    'DeviceChannel' => '02',
-                ],
-                'CardHolderData' => [
-                    'BillAddrCity'     => 'İstanbul',
-                    'BillAddrCountry'  => '792',
-                    'BillAddrLine1'    => 'XXX Mahallesi XXX Caddesi No 55 Daire 1',
-                    'BillAddrPostCode' => '34000',
-                    'BillAddrState'    => '40',
-                    'Email'            => 'xxxxx@gmail.com',
-                    'MobilePhone'      => [
-                        'Cc'         => '90',
-                        'Subscriber' => '5554567899',
-                    ],
-                ],
-            ];
-            $requestData                    = $event->getRequestData();
-            $requestData                    = \array_merge_recursive($requestData, $additionalRequestDataForKuveyt);
-            $event->setRequestData($requestData);
-        }
-    }
-    ```
-
-    Sonra bu yeni Listener'i `AppServiceProvider`'da register etmeniz gerekiyor.
-    
-    ```php
-    # /app/Providers/AppServiceProvider.php
-    namespace App\Providers;
-    
-    class AppServiceProvider extends ServiceProvider
-    {
-        public function boot(): void
-        {
-            // ...
-            \Illuminate\Support\Facades\Event::listen(
-                \Mews\Pos\Event\RequestDataPreparedEvent::class,
-                \App\Listeners\KuveytPosV2RequestDataPreparedEventListener::class
-            );
-        }
-    }
-    ```
-
 ###  Gateway'lere Erişim
 
-Birden fazla banka yapılandırıldığında`GatewayRegistry` veya `LaravelPos`
+Birden fazla banka yapılandırıldığında `GatewayRegistry` veya `LaravelPos`
 facade'i ile gateway'e erişebilirsiniz:
 
 ```php
@@ -217,8 +146,43 @@ $pos = LaravelPos::gateway('kuveytpos');
 $all = $this->gatewayRegistry->all(); // PosInterface[]
 ```
 
+Tek banka yapılandırıldığında `PosInterface` doğrudan inject edilebilir:
+
+```php
+public function __construct(private \Mews\Pos\PosInterface $pos) {}
+```
+
 Bilinmeyen bir `$bankKey` verilirse `\InvalidArgumentException` fırlatılır.
 
+### PosQuery Kullanımı
+
+Sipariş geçmişi ve özel sorgu işlemleri için `PosQueryInterface` kullanın.
+Bu servis, query desteği olan gateway'ler için otomatik olarak container'a kaydedilir.
+
+> **Not:** `KuveytPos` ve `Param3DHostPos` query desteği sunmamaktadır.
+
+```php
+use Mews\Pos\PosQuery\PosQueryInterface;
+use Mews\LaravelPos\PosQueryRegistry;
+
+// Tek bank ya da default (ilk banka query destekliyorsa)
+public function __construct(private PosQueryInterface $posQuery) {}
+
+// Belirli bir banka
+$posQuery = app('laravel-pos:query:akbank');
+
+// Registry üzerinden
+$posQuery = app(PosQueryRegistry::class)->query('akbank');
+
+// Sipariş geçmişi
+$response = $posQuery->history([
+    'start_date' => new \DateTime('-1 month'),
+    'end_date'   => new \DateTime(),
+]);
+
+// Ham API çağrısı
+$response = $posQuery->customQuery($requestData, $apiUrl);
+```
 
 ### 3D Secure Odeme Ornek Kullanim
 
@@ -227,22 +191,21 @@ Bilinmeyen bir `$bankKey` verilirse `\InvalidArgumentException` fırlatılır.
 
 namespace App\Http\Controllers;
 
-use Illuminate\Container\Container;
 use Illuminate\Http\Request;
-use Mews\Pos\Entity\Card\CreditCardInterface;
-use Mews\Pos\Exceptions\CardTypeNotSupportedException;
-use Mews\Pos\Exceptions\CardTypeRequiredException;
-use Mews\Pos\Exceptions\HashMismatchException;
+use Mews\Pos\Exception\CardTypeNotSupportedException;
+use Mews\Pos\Exception\CardTypeRequiredException;
+use Mews\Pos\Exception\HashMismatchException;
 use Mews\Pos\Factory\CreditCardFactory;
-use Mews\Pos\Gateways\PayFlexV4Pos;
+use Mews\Pos\Gateway\PayFlexCPV4Pos;
+use Mews\Pos\Gateway\PayFlexV4Pos;
+use Mews\Pos\Model\Card\CreditCardInterface;
 use Mews\Pos\PosInterface;
 
 class ThreeDSecurePaymentController extends Controller
 {
     private string $paymentModel = PosInterface::MODEL_3D_SECURE;
 
-    // Tek banka örnegi:
-    // Tek banka anlamı /config/laravel-pos.php'de sadece bir banka tanımlanmış olmasıdır.
+    // Tek banka örneği:
     public function __construct(
         private PosInterface $pos,
     ) {
@@ -250,14 +213,14 @@ class ThreeDSecurePaymentController extends Controller
 
     /**
      * route: /payment/3d/form
-     * Kullanicidan kredi kart bilgileri alip buraya POST ediyoruz
+     * Kullanıcıdan kredi kart bilgileri alıp buraya POST ediyoruz.
      */
     public function form(Request $request)
     {
         $session = $request->getSession();
     
         // START: birden fazla banka ile örnek
-//        $secilenBanka = $request->get('installment') > 1 ? 'kuveytpos' : 'estpos_payten';
+//        $secilenBanka = $request->get('installment') > 1 ? 'kuveytpos' : 'asseco_payten';
 //        $this->pos = \Mews\LaravelPos\Facades\LaravelPos::gateway($secilenBanka);
 //        $session->set('secilen_banka', $secilenBanka);
         // END: birden fazla banka ile örnek 
@@ -288,19 +251,18 @@ class ThreeDSecurePaymentController extends Controller
 
         try {
             $formData = $this->pos->get3DFormData(
-            $order,
-            $this->paymentModel,
-            $transaction,
-            $card,
-            /**
-            * MODEL_3D_SECURE veya MODEL_3D_PAY ödemelerde kredi kart verileri olmadan
-            * form verisini oluşturmak için true yapabilirsiniz.
-            * Yine de bazı gatewaylerde kartsız form verisi oluşturulamıyor.
-            */
-            false
+                $order,
+                $this->paymentModel,
+                $transaction,
+                $card,
+                false
             );
         } catch (\Throwable $e) {
             dd($e);
+        }
+
+        if (is_array($formData) && $formData['method'] === 'GET' && $formData['inputs'] === []) {
+            return redirect($formData['gateway']);
         }
 
         return view('redirect-form', [
@@ -310,8 +272,8 @@ class ThreeDSecurePaymentController extends Controller
 
     /**
      * route: /payment/3d/response
-     * Kullanici bankadan geri buraya redirect edilir.
-     * Bu route icin CSRF disable edilmesi gerekiyor.
+     * Kullanıcı bankadan geri buraya redirect edilir.
+     * Bu route için CSRF disable edilmesi gerekir.
      */
     public function response(Request $request)
     {
@@ -324,16 +286,16 @@ class ThreeDSecurePaymentController extends Controller
         
         $transaction = $session->get('tx', PosInterface::TX_TYPE_PAY_AUTH);
 
-        // bankadan POST veya GET ile veri gelmesi gerekiyor
+        // Bankadan POST veya GET ile veri gelmesi gerekiyor.
         if (($request->getMethod() !== 'POST')
             // PayFlex-CP GET request ile cevapliyor
-            && ($request->getMethod() === 'GET' && ($this->pos::class !== \Mews\Pos\Gateways\PayFlexCPV4Pos::class || [] === $request->query->all()))
+            && ($request->getMethod() === 'GET' && ($this->pos::class !== PayFlexCPV4Pos::class || [] === $request->query->all()))
         ) {
             return redirect('/');
         }
 
         $card = null;
-        if ($this->pos::class === \Mews\Pos\Gateways\PayFlexV4Pos::class) {
+        if ($this->pos::class === PayFlexV4Pos::class) {
             // bu gateway için ödemeyi tamamlarken tekrar kart bilgisi lazım.
             $savedCard = $session->get('card');
             $card      = $this->createCard($this->pos, $savedCard);
@@ -344,17 +306,20 @@ class ThreeDSecurePaymentController extends Controller
             throw new \Exception('Sipariş bulunamadı, session sıfırlanmış olabilir.');
         }
 
+        // PayFlexCPV4Pos bankadan GET ile yanıt alır, diğerleri POST.
+        $gatewayResponseData = $this->pos::class === PayFlexCPV4Pos::class
+            ? $request->query()
+            : $request->post();
+
         try {
-            $this->pos->payment($this->paymentModel, $order, $transaction, $card);
+            $response = $this->pos->payment($this->paymentModel, $order, $transaction, $card, $gatewayResponseData);
         } catch (HashMismatchException $e) {
             dd($request->request->all(), $request->query->all(), $e);
         } catch (\Exception|\Error $e) {
             dd($request->request->all(), $request->query->all(), $e);
         }
 
-        $response = $this->pos->getResponse();
-
-        // iptal, iade, siparis durum sorgulama islemleri yapabilmek icin $response'u kaydediyoruz
+        // İptal, iade, sipariş durum sorgulama işlemleri yapabilmek için $response'u kaydediyoruz.
         $session->set('last_response', $response);
 
         if ($this->pos->isSuccess()) {
@@ -370,10 +335,8 @@ class ThreeDSecurePaymentController extends Controller
         string $ip,
         string $currency,
         ?int   $installment = 0,
-        string $lang = PosInterface::LANG_TR
-    ): array
-    {
-        $orderId = date('Ymd').strtoupper(substr(uniqid(sha1(time())), 0, 4));
+    ): array {
+        $orderId = date('Ymd') . strtoupper(substr(uniqid(sha1(time())), 0, 4));
 
         $order = [
             'id'          => $orderId,
@@ -391,11 +354,6 @@ class ThreeDSecurePaymentController extends Controller
         ], true)) {
             $order['success_url'] = $callbackUrl;
             $order['fail_url']    = $callbackUrl;
-        }
-
-        if ($lang) {
-            //lang degeri verilmezse account (EstPosAccount) dili kullanilacak
-            $order['lang'] = $lang;
         }
 
         return $order;
@@ -442,10 +400,8 @@ Route::match(['GET','POST'], '/payment/3d/response', [\App\Http\Controllers\Thre
       <div class="form-group text-center">
          <button type="submit" class="btn btn-lg btn-block btn-success">Submit</button>
       </div>
-   
    </form>
    <script>
-      // Formu JS ile otomatik submit ederek kullaniciyi banka gatewayine yonlendiriyoruz.
       let redirectForm = document.querySelector('form.redirect-form');
       if (redirectForm) {
          redirectForm.submit();
