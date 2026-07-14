@@ -19,7 +19,7 @@ class GatewayRegistryTest extends TestCase
     protected function defineEnvironment($app): void
     {
         $app['config']->set('laravel-pos.banks', [
-            'est_bank'     => $this->makeEstPosConfig(),
+            'est_bank' => $this->makeEstPosConfig(),
             'garanti_bank' => $this->makeGarantiPosConfig(),
         ]);
 
@@ -91,43 +91,43 @@ class GatewayRegistryTest extends TestCase
     private function makeEstPosConfig(): array
     {
         return [
-            'gateway_class'     => AssecoPos::class,
-            'credentials'       => [
-                'merchant_id'   => '700655000200',
-                'user_name'     => 'ISBANKAPI',
+            'gateway_class' => AssecoPos::class,
+            'credentials' => [
+                'merchant_id' => '700655000200',
+                'user_name' => 'ISBANKAPI',
                 'user_password' => 'ISBANK07',
-                'secret_key'    => 'TRPS0200',
+                'secret_key' => 'TRPS0200',
             ],
             'gateway_endpoints' => [
-                'payment_api'     => 'https://entegrasyon.asseco-see.com.tr/fim/api',
-                'gateway_3d'      => 'https://entegrasyon.asseco-see.com.tr/fim/est3Dgate',
+                'payment_api' => 'https://entegrasyon.asseco-see.com.tr/fim/api',
+                'gateway_3d' => 'https://entegrasyon.asseco-see.com.tr/fim/est3Dgate',
                 'gateway_3d_host' => null,
-                'query_api'       => null,
+                'query_api' => null,
             ],
-            'gateway_configs'   => [],
+            'gateway_configs' => [],
         ];
     }
 
     private function makeGarantiPosConfig(): array
     {
         return [
-            'gateway_class'     => GarantiPos::class,
-            'credentials'       => [
-                'merchant_id'          => '7000679',
-                'user_name'            => 'PROVAUT',
-                'user_password'        => '123qweASD',
-                'terminal_id'          => '30691298',
-                'secret_key'           => '12345678',
-                'refund_user_name'     => 'PROVRFN',
+            'gateway_class' => GarantiPos::class,
+            'credentials' => [
+                'merchant_id' => '7000679',
+                'user_name' => 'PROVAUT',
+                'user_password' => '123qweASD',
+                'terminal_id' => '30691298',
+                'secret_key' => '12345678',
+                'refund_user_name' => 'PROVRFN',
                 'refund_user_password' => '123qweASD',
             ],
             'gateway_endpoints' => [
-                'payment_api'     => 'https://sanalposprovtest.garanti.com.tr/VPServlet',
-                'gateway_3d'      => 'https://sanalposprovtest.garanti.com.tr/servlet/gt3dengine',
+                'payment_api' => 'https://sanalposprovtest.garanti.com.tr/VPServlet',
+                'gateway_3d' => 'https://sanalposprovtest.garanti.com.tr/servlet/gt3dengine',
                 'gateway_3d_host' => null,
-                'query_api'       => null,
+                'query_api' => null,
             ],
-            'gateway_configs'   => [],
+            'gateway_configs' => [],
         ];
     }
 }

@@ -9,7 +9,25 @@ use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\Http\Client\ClientInterface;
 use Psr\Log\LoggerInterface;
 
-/** @internal */
+/**
+ * @phpstan-type BankConfig array{
+ *     gateway_class: class-string<PosInterface>,
+ *     credentials: array<non-empty-string, non-empty-string>,
+ *     gateway_endpoints: array{
+ *         payment_api: non-empty-string,
+ *         gateway_3d?: non-empty-string,
+ *         gateway_3d_host?: non-empty-string,
+ *         query_api?: non-empty-string,
+ *     },
+ *     gateway_configs?: array{
+ *         test_mode?: bool,
+ *         lang?: PosInterface::LANG_*,
+ *         disable_3d_hash_check?: bool,
+ *     },
+ * }
+ *
+ * @internal
+ */
 class GatewayFactory
 {
     public function __construct(
@@ -19,26 +37,31 @@ class GatewayFactory
     ) {
     }
 
+    /**
+     * @phpstan-param BankConfig $options
+     */
     public function create(string $name, array $options): PosInterface
     {
-        $gatewayClass = $options['gateway_class'];
+        if ('' === $name) {
+            throw new \InvalidArgumentException('Bank key must not be empty.');
+        }
 
-        if (!\in_array(PosInterface::class, \class_implements($gatewayClass), true)) {
+        if (!\is_a($options['gateway_class'], PosInterface::class, true)) {
             throw new \InvalidArgumentException(
-                \sprintf('gateway_class must be implementation of %s', PosInterface::class)
+                \sprintf('gateway_class must be an implementation of %s', PosInterface::class)
             );
         }
 
         $account = MewsPosAccountFactory::createForGateway(
-            $gatewayClass,
+            $options['gateway_class'],
             $name,
             $options['credentials']
         );
 
         $config = [
-            'class'             => $gatewayClass,
+            'class' => $options['gateway_class'],
             'gateway_endpoints' => $options['gateway_endpoints'],
-            'gateway_configs'   => $options['gateway_configs'] ?? [],
+            'gateway_configs' => $options['gateway_configs'] ?? [],
         ];
 
         return PosFactory::create($account, $config, $this->eventDispatcher, null, $this->client, $this->logger);

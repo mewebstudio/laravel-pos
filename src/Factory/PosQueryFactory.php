@@ -9,7 +9,11 @@ use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\Http\Client\ClientInterface;
 use Psr\Log\LoggerInterface;
 
-/** @internal */
+/**
+ * @phpstan-import-type BankConfig from GatewayFactory
+ *
+ * @internal
+ */
 class PosQueryFactory
 {
     public function __construct(
@@ -19,8 +23,15 @@ class PosQueryFactory
     ) {
     }
 
+    /**
+     * @phpstan-param BankConfig $options
+     */
     public function create(string $name, array $options): PosQueryInterface
     {
+        if ('' === $name) {
+            throw new \InvalidArgumentException('Bank key must not be empty.');
+        }
+
         $account = MewsPosAccountFactory::createForGateway(
             $options['gateway_class'],
             $name,
@@ -28,9 +39,9 @@ class PosQueryFactory
         );
 
         $config = [
-            'class'             => $options['gateway_class'],
+            'class' => $options['gateway_class'],
             'gateway_endpoints' => $options['gateway_endpoints'],
-            'gateway_configs'   => $options['gateway_configs'] ?? [],
+            'gateway_configs' => $options['gateway_configs'] ?? [],
         ];
 
         return MewsPosPosQueryFactory::create($account, $config, $this->eventDispatcher, $this->client, $this->logger);

@@ -87,6 +87,7 @@ class LaravelPosServiceProviderTest extends TestCase
         }
     }
 
+    /** @dataProvider gatewayProvider */
     #[DataProvider('gatewayProvider')]
     public function test_each_bank_resolves_correct_gateway_class(string $bankKey, string $expectedClass): void
     {
@@ -125,8 +126,8 @@ class LaravelPosServiceProviderTest extends TestCase
     public function test_all_access_paths_return_the_same_instance(): void
     {
         $registry = $this->app->make(\Mews\LaravelPos\GatewayRegistry::class);
-        $viaKey   = $this->app->make('laravel-pos:gateway:asseco');
-        $tagged   = [...$this->app->tagged('laravel-pos:gateway')];
+        $viaKey = $this->app->make('laravel-pos:gateway:asseco');
+        $tagged = [...$this->app->tagged('laravel-pos:gateway')];
 
         $this->assertSame($viaKey, $registry->gateway('asseco'));
         $this->assertSame($viaKey, $tagged[0]);
@@ -135,7 +136,7 @@ class LaravelPosServiceProviderTest extends TestCase
     public function test_query_registry_singletons_match_tagged_instances(): void
     {
         $registry = $this->app->make(PosQueryRegistry::class);
-        $viaKey   = $this->app->make('laravel-pos:query:asseco');
+        $viaKey = $this->app->make('laravel-pos:query:asseco');
 
         $this->assertSame($viaKey, $registry->query('asseco'));
     }
@@ -170,216 +171,216 @@ class LaravelPosServiceProviderTest extends TestCase
     private static function allBanksConfig(): array
     {
         return [
-            'asseco'        => [
-                'gateway_class'     => AssecoPos::class,
-                'credentials'       => [
-                    'merchant_id'   => '700655000200',
-                    'user_name'     => 'ISBANKAPI',
+            'asseco' => [
+                'gateway_class' => AssecoPos::class,
+                'credentials' => [
+                    'merchant_id' => '700655000200',
+                    'user_name' => 'ISBANKAPI',
                     'user_password' => 'ISBANK07',
-                    'secret_key'    => 'TRPS0200',
+                    'secret_key' => 'TRPS0200',
                 ],
                 'gateway_endpoints' => [
                     'payment_api' => 'https://entegrasyon.asseco-see.com.tr/fim/api',
-                    'gateway_3d'  => 'https://entegrasyon.asseco-see.com.tr/fim/est3Dgate',
+                    'gateway_3d' => 'https://entegrasyon.asseco-see.com.tr/fim/est3Dgate',
                 ],
-                'gateway_configs'   => [],
+                'gateway_configs' => [],
             ],
-            'akbank'        => [
-                'gateway_class'     => AkbankPos::class,
-                'credentials'       => [
+            'akbank' => [
+                'gateway_class' => AkbankPos::class,
+                'credentials' => [
                     'merchant_id' => '2023090417500272654BD9A49CF07574',
                     'terminal_id' => '2023090417500284633D137A249DBBEB',
-                    'secret_key'  => 'c1PPl+2rNNBB2LwmQe9SrGHKa3XJYiCEFMBOd1l3244=',
+                    'secret_key' => 'c1PPl+2rNNBB2LwmQe9SrGHKa3XJYiCEFMBOd1l3244=',
                 ],
                 'gateway_endpoints' => [
                     'payment_api' => 'https://apipre.akbank.com/api/v1/payment/akbankpay',
                 ],
-                'gateway_configs'   => [],
+                'gateway_configs' => [],
             ],
-            'garanti'       => [
-                'gateway_class'     => GarantiPos::class,
-                'credentials'       => [
-                    'merchant_id'          => '7000679',
-                    'user_name'            => 'PROVAUT',
-                    'user_password'        => '123qweASD',
-                    'terminal_id'          => '30691298',
-                    'secret_key'           => '12345678',
-                    'refund_user_name'     => 'PROVRFN',
+            'garanti' => [
+                'gateway_class' => GarantiPos::class,
+                'credentials' => [
+                    'merchant_id' => '7000679',
+                    'user_name' => 'PROVAUT',
+                    'user_password' => '123qweASD',
+                    'terminal_id' => '30691298',
+                    'secret_key' => '12345678',
+                    'refund_user_name' => 'PROVRFN',
                     'refund_user_password' => '123qweASD',
                 ],
                 'gateway_endpoints' => [
                     'payment_api' => 'https://sanalposprovtest.garanti.com.tr/VPServlet',
-                    'gateway_3d'  => 'https://sanalposprovtest.garanti.com.tr/servlet/gt3dengine',
+                    'gateway_3d' => 'https://sanalposprovtest.garanti.com.tr/servlet/gt3dengine',
                 ],
-                'gateway_configs'   => [],
+                'gateway_configs' => [],
             ],
-            'inter'         => [
-                'gateway_class'     => InterPos::class,
-                'credentials'       => [
-                    'merchant_id'   => '3123',
-                    'user_name'     => 'InterTestApi',
+            'inter' => [
+                'gateway_class' => InterPos::class,
+                'credentials' => [
+                    'merchant_id' => '3123',
+                    'user_name' => 'InterTestApi',
                     'user_password' => '3',
-                    'secret_key'    => 'gDg1N',
+                    'secret_key' => 'gDg1N',
                 ],
                 'gateway_endpoints' => [
                     'payment_api' => 'https://test.inter-vpos.com.tr/mpi/Default.aspx',
-                    'gateway_3d'  => 'https://test.inter-vpos.com.tr/mpi/3DHost.aspx',
+                    'gateway_3d' => 'https://test.inter-vpos.com.tr/mpi/3DHost.aspx',
                 ],
-                'gateway_configs'   => [],
+                'gateway_configs' => [],
             ],
-            'iyzico'        => [
-                'gateway_class'     => IyzicoPos::class,
-                'credentials'       => [
+            'iyzico' => [
+                'gateway_class' => IyzicoPos::class,
+                'credentials' => [
                     'merchant_id' => 'sandbox-api-key',
-                    'secret_key'  => 'sandbox-secret-key',
+                    'secret_key' => 'sandbox-secret-key',
                 ],
                 'gateway_endpoints' => [
                     'payment_api' => 'https://sandbox-api.iyzipay.com',
                 ],
-                'gateway_configs'   => [],
+                'gateway_configs' => [],
             ],
-            'kuveyt'        => [
-                'gateway_class'     => KuveytPos::class,
-                'credentials'       => [
+            'kuveyt' => [
+                'gateway_class' => KuveytPos::class,
+                'credentials' => [
                     'merchant_id' => '496',
-                    'user_name'   => 'apitest',
+                    'user_name' => 'apitest',
                     'terminal_id' => '4961',
-                    'secret_key'  => 'api123',
+                    'secret_key' => 'api123',
                 ],
                 'gateway_endpoints' => [
                     'payment_api' => 'https://boatest.kuveytturk.com.tr/boa.virtualpos.services/Home',
                 ],
-                'gateway_configs'   => [],
+                'gateway_configs' => [],
             ],
-            'param'         => [
-                'gateway_class'     => ParamPos::class,
-                'credentials'       => [
-                    'merchant_id'   => '10738',
-                    'user_name'     => 'Test',
+            'param' => [
+                'gateway_class' => ParamPos::class,
+                'credentials' => [
+                    'merchant_id' => '10738',
+                    'user_name' => 'Test',
                     'user_password' => 'Test',
-                    'secret_key'    => '0c13d406-873b-403b-9c09-a5766840d98c',
+                    'secret_key' => '0c13d406-873b-403b-9c09-a5766840d98c',
                 ],
                 'gateway_endpoints' => [
                     'payment_api' => 'https://test.param.com.tr/Pos/Bankacart/service_turkpos.asmx',
                 ],
-                'gateway_configs'   => [],
+                'gateway_configs' => [],
             ],
             'param-3d-host' => [
-                'gateway_class'     => Param3DHostPos::class,
-                'credentials'       => [
-                    'merchant_id'   => '10738',
-                    'user_name'     => 'Test',
+                'gateway_class' => Param3DHostPos::class,
+                'credentials' => [
+                    'merchant_id' => '10738',
+                    'user_name' => 'Test',
                     'user_password' => 'Test',
-                    'secret_key'    => '0c13d406-873b-403b-9c09-a5766840d98c',
+                    'secret_key' => '0c13d406-873b-403b-9c09-a5766840d98c',
                 ],
                 'gateway_endpoints' => [
-                    'payment_api'     => 'https://test.param.com.tr/Pos/Bankacart/Service_Odeme.asmx',
+                    'payment_api' => 'https://test.param.com.tr/Pos/Bankacart/Service_Odeme.asmx',
                     'gateway_3d_host' => 'https://test.param.com.tr/default.aspx',
                 ],
-                'gateway_configs'   => [],
+                'gateway_configs' => [],
             ],
-            'payflexv4'     => [
-                'gateway_class'     => PayFlexV4Pos::class,
-                'credentials'       => [
-                    'merchant_id'   => 'M001',
+            'payflexv4' => [
+                'gateway_class' => PayFlexV4Pos::class,
+                'credentials' => [
+                    'merchant_id' => 'M001',
                     'user_password' => 'P001',
-                    'terminal_id'   => 'VP000579',
+                    'terminal_id' => 'VP000579',
                 ],
                 'gateway_endpoints' => [
                     'payment_api' => 'https://onlineodemetest.vakifbank.com.tr:4443/VposService/v3/Vposreq.aspx',
-                    'gateway_3d'  => 'https://3dsecuretest.vakifbank.com.tr:4443/MPIAPI/MPI_Enrollment.aspx',
+                    'gateway_3d' => 'https://3dsecuretest.vakifbank.com.tr:4443/MPIAPI/MPI_Enrollment.aspx',
                 ],
-                'gateway_configs'   => [],
+                'gateway_configs' => [],
             ],
-            'payflexcpv4'   => [
-                'gateway_class'     => PayFlexCPV4Pos::class,
-                'credentials'       => [
-                    'merchant_id'   => 'M001',
+            'payflexcpv4' => [
+                'gateway_class' => PayFlexCPV4Pos::class,
+                'credentials' => [
+                    'merchant_id' => 'M001',
                     'user_password' => 'P001',
-                    'terminal_id'   => 'VP000579',
+                    'terminal_id' => 'VP000579',
                 ],
                 'gateway_endpoints' => [
                     'payment_api' => 'https://cptest.vakifbank.com.tr/CommonPayment/api',
                 ],
-                'gateway_configs'   => [],
+                'gateway_configs' => [],
             ],
-            'payfor'        => [
-                'gateway_class'     => PayForPos::class,
-                'credentials'       => [
-                    'merchant_id'   => '085300000009704',
-                    'user_name'     => 'QNB_API_KULLANICI_3DPAY',
+            'payfor' => [
+                'gateway_class' => PayForPos::class,
+                'credentials' => [
+                    'merchant_id' => '085300000009704',
+                    'user_name' => 'QNB_API_KULLANICI_3DPAY',
                     'user_password' => 'UcBN0',
-                    'secret_key'    => '12345678',
+                    'secret_key' => '12345678',
                 ],
                 'gateway_endpoints' => [
                     'payment_api' => 'https://vpostest.qnbfinansbank.com/Gateway/XMLGate.aspx',
-                    'gateway_3d'  => 'https://vpostest.qnbfinansbank.com/Gateway/Default.aspx',
+                    'gateway_3d' => 'https://vpostest.qnbfinansbank.com/Gateway/Default.aspx',
                 ],
-                'gateway_configs'   => [],
+                'gateway_configs' => [],
             ],
-            'paytr'         => [
-                'gateway_class'     => PayTrPos::class,
-                'credentials'       => [
-                    'merchant_id'   => '123456',
+            'paytr' => [
+                'gateway_class' => PayTrPos::class,
+                'credentials' => [
+                    'merchant_id' => '123456',
                     'user_password' => 'merchant-salt',
-                    'secret_key'    => 'merchant-key',
+                    'secret_key' => 'merchant-key',
                 ],
                 'gateway_endpoints' => [
                     'payment_api' => 'https://www.paytr.com/odeme/api',
                 ],
-                'gateway_configs'   => [],
+                'gateway_configs' => [],
             ],
-            'posnet'        => [
-                'gateway_class'     => PosNetPos::class,
-                'credentials'       => [
+            'posnet' => [
+                'gateway_class' => PosNetPos::class,
+                'credentials' => [
                     'merchant_id' => '6701950031',
                     'terminal_id' => '67540050',
-                    'user_name'   => '27426',
-                    'secret_key'  => '10,10,10,10,10,10,10,10',
+                    'user_name' => '27426',
+                    'secret_key' => '10,10,10,10,10,10,10,10',
                 ],
                 'gateway_endpoints' => [
                     'payment_api' => 'https://setmpos.ykb.com/PosnetWebService/XML',
-                    'gateway_3d'  => 'https://setmpos.ykb.com/3DSWebService/YKBPaymentService',
+                    'gateway_3d' => 'https://setmpos.ykb.com/3DSWebService/YKBPaymentService',
                 ],
-                'gateway_configs'   => [],
+                'gateway_configs' => [],
             ],
-            'posnetv1'      => [
-                'gateway_class'     => PosNetV1Pos::class,
-                'credentials'       => [
+            'posnetv1' => [
+                'gateway_class' => PosNetV1Pos::class,
+                'credentials' => [
                     'merchant_id' => '6701950031',
                     'terminal_id' => '67540050',
-                    'user_name'   => '27426',
+                    'user_name' => '27426',
                 ],
                 'gateway_endpoints' => [
                     'payment_api' => 'https://posnet.yapikredi.com.tr/PosnetWebService/XML',
-                    'gateway_3d'  => 'https://posnet.yapikredi.com.tr/3DSWebService/YKBPaymentService',
+                    'gateway_3d' => 'https://posnet.yapikredi.com.tr/3DSWebService/YKBPaymentService',
                 ],
-                'gateway_configs'   => [],
+                'gateway_configs' => [],
             ],
-            'tosla'         => [
-                'gateway_class'     => ToslaPos::class,
-                'credentials'       => [
+            'tosla' => [
+                'gateway_class' => ToslaPos::class,
+                'credentials' => [
                     'merchant_id' => '1000000494',
-                    'user_name'   => 'POS_ENT_APISI_KULLANICI',
-                    'secret_key'  => '33333',
+                    'user_name' => 'POS_ENT_APISI_KULLANICI',
+                    'secret_key' => '33333',
                 ],
                 'gateway_endpoints' => [
                     'payment_api' => 'https://entegrasyon.tosla.com/api/Payment',
                 ],
-                'gateway_configs'   => [],
+                'gateway_configs' => [],
             ],
             'vakif-katilim' => [
-                'gateway_class'     => VakifKatilimPos::class,
-                'credentials'       => [
+                'gateway_class' => VakifKatilimPos::class,
+                'credentials' => [
                     'merchant_id' => '1',
-                    'user_name'   => 'apitest',
+                    'user_name' => 'apitest',
                     'terminal_id' => '1',
-                    'secret_key'  => 'api123',
+                    'secret_key' => 'api123',
                 ],
                 'gateway_endpoints' => [
                     'payment_api' => 'https://boa.vakifkatilim.com.tr/VirtualPOS.Gateway/Home',
                 ],
-                'gateway_configs'   => [],
+                'gateway_configs' => [],
             ],
         ];
     }

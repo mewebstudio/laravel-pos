@@ -2,26 +2,34 @@
 
 namespace Mews\LaravelPos;
 
+use Mews\LaravelPos\Factory\GatewayFactory;
 use Mews\LaravelPos\Factory\PosQueryFactory;
 use Mews\Pos\PosQuery\PosQueryInterface;
 
+/**
+ * @phpstan-import-type BankConfig from GatewayFactory
+ */
 class PosQueryRegistry
 {
-    /** @var PosQueryInterface[] */
+    /** @var array<non-empty-string, PosQueryInterface> */
     private array $resolved = [];
 
+    /** @phpstan-var array<non-empty-string, BankConfig> */
     private array $banks;
     private PosQueryFactory $posQueryFactory;
 
+    /**
+     * @phpstan-param array<non-empty-string, BankConfig> $banks
+     */
     public function __construct(array $banks, PosQueryFactory $posQueryFactory)
     {
-        $this->banks           = $banks;
+        $this->banks = $banks;
         $this->posQueryFactory = $posQueryFactory;
     }
 
     public function query(string $bankKey): PosQueryInterface
     {
-        if (!isset($this->banks[$bankKey])) {
+        if ('' === $bankKey || !isset($this->banks[$bankKey])) {
             throw new \InvalidArgumentException(
                 sprintf('No query registered for bank key "%s".', $bankKey)
             );
@@ -40,7 +48,7 @@ class PosQueryRegistry
     public function all(): array
     {
         return array_map(
-            fn(string $key) => $this->query($key),
+            fn (string $key) => $this->query($key),
             array_keys($this->banks)
         );
     }

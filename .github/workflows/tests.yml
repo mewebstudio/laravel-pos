@@ -12,11 +12,11 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - php: '8.0'
+          - php: '8.2'
             testbench: '^6.0'
-          - php: '8.1'
+          - php: '8.2'
             testbench: '^7.0'
-          - php: '8.1'
+          - php: '8.2'
             testbench: '^8.17'
           - php: '8.2'
             testbench: '^9.0'
@@ -50,8 +50,42 @@ jobs:
       - name: Pin testbench version
         run: composer require "orchestra/testbench:${{ matrix.testbench }}" --no-interaction --no-update
 
+      - name: Remove code quality tools (not needed for tests)
+        run: composer remove --dev larastan/larastan phpstan/phpstan phpstan/phpstan-strict-rules friendsofphp/php-cs-fixer --no-update --no-interaction
+
       - name: Install dependencies
         run: composer update --no-interaction --prefer-dist --no-progress
 
       - name: Run tests
-        run: ./vendor/bin/phpunit
+        run: composer test
+
+  code-quality:
+    runs-on: ubuntu-latest
+    name: Code Quality (PHP 8.4)
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          coverage: none
+
+      - name: Cache Composer packages
+        uses: actions/cache@v5
+        with:
+          path: vendor
+          key: php-8.4-quality-${{ hashFiles('composer.json') }}
+
+      - name: Configure Composer
+        run: composer config --global policy.advisories.block false
+
+      - name: Install dependencies
+        run: composer update --no-interaction --prefer-dist --no-progress
+
+      - name: Run PHPStan
+        run: composer phpstan
+
+      - name: Check code style
+        run: composer cs-check

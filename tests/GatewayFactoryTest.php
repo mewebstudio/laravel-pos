@@ -74,20 +74,20 @@ class GatewayFactoryTest extends TestCase
     private static function baseConfig(): array
     {
         return [
-            'gateway_class'     => AssecoPos::class,
-            'credentials'       => [
-                'merchant_id'   => '700655000200',
-                'user_name'     => 'ISBANKAPI',
+            'gateway_class' => AssecoPos::class,
+            'credentials' => [
+                'merchant_id' => '700655000200',
+                'user_name' => 'ISBANKAPI',
                 'user_password' => 'ISBANK07',
-                'secret_key'    => 'TRPS0200',
+                'secret_key' => 'TRPS0200',
             ],
             'gateway_endpoints' => [
-                'payment_api'     => 'https://entegrasyon.asseco-see.com.tr/fim/api',
-                'gateway_3d'      => 'https://entegrasyon.asseco-see.com.tr/fim/est3Dgate',
+                'payment_api' => 'https://entegrasyon.asseco-see.com.tr/fim/api',
+                'gateway_3d' => 'https://entegrasyon.asseco-see.com.tr/fim/est3Dgate',
                 'gateway_3d_host' => null,
-                'query_api'       => null,
+                'query_api' => null,
             ],
-            'gateway_configs'   => [],
+            'gateway_configs' => [],
         ];
     }
 }

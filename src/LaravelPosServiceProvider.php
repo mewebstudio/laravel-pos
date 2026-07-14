@@ -16,27 +16,18 @@ use Psr\Http\Client\ClientInterface;
 use Psr\Log\LoggerInterface;
 
 /**
- * Class LaravelPosServiceProvider
- * @package Mews\LaravelPos
+ * @phpstan-import-type BankConfig from GatewayFactory
  */
-class LaravelPosServiceProvider extends ServiceProvider {
-
-    /**
-     * Boot the service provider.
-     *
-     * @return null
-     */
-    public function boot()
+class LaravelPosServiceProvider extends ServiceProvider
+{
+    public function boot(): void
     {
-        // Config file publishes
         $this->publishes([
-            __DIR__.'/../config/laravel-pos.php' => config_path('laravel-pos.php')
+            __DIR__.'/../config/laravel-pos.php' => config_path('laravel-pos.php'),
         ], 'laravel-pos');
     }
 
     /**
-     * Register the service provider.
-     *
      * @return void
      */
     public function register()
@@ -46,7 +37,7 @@ class LaravelPosServiceProvider extends ServiceProvider {
 
         $this->app->singleton(GatewayRegistry::class, function (Application $app) {
             return new GatewayRegistry(
-                config('laravel-pos.banks') ?? [],
+                $this->banksConfig(),
                 new GatewayFactory(
                     $app->make(EventDispatcherInterface::class),
                     $app->make(LoggerInterface::class),
@@ -57,7 +48,7 @@ class LaravelPosServiceProvider extends ServiceProvider {
 
         $this->app->singleton(PosQueryRegistry::class, function (Application $app) {
             $queryBanks = array_filter(
-                config('laravel-pos.banks') ?? [],
+                $this->banksConfig(),
                 static fn (array $config) => null !== MewsPosPosQueryFactory::getPosQueryClassForGateway($config['gateway_class'])
             );
 
@@ -71,8 +62,8 @@ class LaravelPosServiceProvider extends ServiceProvider {
             );
         });
 
-        $banks = config('laravel-pos.banks');
-        if (null === $banks || [] === $banks) {
+        $banks = $this->banksConfig();
+        if ([] === $banks) {
             return;
         }
 
@@ -106,6 +97,9 @@ class LaravelPosServiceProvider extends ServiceProvider {
         return $id;
     }
 
+    /**
+     * @phpstan-param BankConfig $bankConfig
+     */
     private function registerGatewayQuery(string $bankKey, array $bankConfig): ?string
     {
         if (null === MewsPosPosQueryFactory::getPosQueryClassForGateway($bankConfig['gateway_class'])) {
@@ -118,5 +112,14 @@ class LaravelPosServiceProvider extends ServiceProvider {
         $this->app->tag($id, 'laravel-pos:query');
 
         return $id;
+    }
+
+    /**
+     * @phpstan-return array<non-empty-string, BankConfig>
+     */
+    private function banksConfig(): array
+    {
+        /** @phpstan-var array<non-empty-string, BankConfig> */
+        return config('laravel-pos.banks') ?? [];
     }
 }
