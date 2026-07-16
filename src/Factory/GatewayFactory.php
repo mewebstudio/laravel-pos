@@ -2,85 +2,68 @@
 
 namespace Mews\LaravelPos\Factory;
 
-use Mews\Pos\Factory\CryptFactory;
-use Mews\Pos\Factory\HttpClientFactory;
-use Mews\Pos\Factory\RequestDataMapperFactory;
-use Mews\Pos\Factory\ResponseDataMapperFactory;
-use Mews\Pos\Factory\SerializerFactory;
+use Mews\Pos\Factory\AccountFactory as MewsPosAccountFactory;
+use Mews\Pos\Factory\PosFactory;
 use Mews\Pos\PosInterface;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\Http\Client\ClientInterface;
 use Psr\Log\LoggerInterface;
 
-/** @internal */
+/**
+ * @phpstan-type BankConfig array{
+ *     gateway_class: class-string<PosInterface>,
+ *     credentials: array<non-empty-string, non-empty-string>,
+ *     gateway_endpoints: array{
+ *         payment_api: non-empty-string,
+ *         gateway_3d?: non-empty-string,
+ *         gateway_3d_host?: non-empty-string,
+ *         query_api?: non-empty-string,
+ *     },
+ *     gateway_configs?: array{
+ *         test_mode?: bool,
+ *         lang?: PosInterface::LANG_*,
+ *         disable_3d_hash_check?: bool,
+ *     },
+ * }
+ *
+ * @internal
+ */
 class GatewayFactory
 {
-    private AccountFactoryInterface $accountFactory;
-    private EventDispatcherInterface $eventDispatcher;
-    private LoggerInterface $logger;
-    private ClientInterface $client;
-
     public function __construct(
-        AccountFactoryInterface  $accountFactory,
-        EventDispatcherInterface $eventDispatcher,
-        LoggerInterface          $logger,
-        ClientInterface          $client
+        private EventDispatcherInterface $eventDispatcher,
+        private LoggerInterface          $logger,
+        private ClientInterface          $client,
     ) {
-        $this->accountFactory  = $accountFactory;
-        $this->eventDispatcher = $eventDispatcher;
-        $this->logger          = $logger;
-        $this->client          = $client;
     }
 
+    /**
+     * @phpstan-param BankConfig $options
+     */
     public function create(string $name, array $options): PosInterface
     {
-        $credentials  = $options['credentials'];
-        $gatewayClass = $options['gateway_class'];
-        if (!\in_array(PosInterface::class, \class_implements($gatewayClass), true)) {
+        if ('' === $name) {
+            throw new \InvalidArgumentException('Bank key must not be empty.');
+        }
+
+        if (!\is_a($options['gateway_class'], PosInterface::class, true)) {
             throw new \InvalidArgumentException(
-                \sprintf('gateway_class must be implementation of %s', PosInterface::class)
+                \sprintf('gateway_class must be an implementation of %s', PosInterface::class)
             );
         }
 
-        $account            = $this->accountFactory->create(
-            $gatewayClass,
+        $account = MewsPosAccountFactory::createForGateway(
+            $options['gateway_class'],
             $name,
-            $credentials,
-            $options['lang'] ?? PosInterface::LANG_TR
-        );
-        $crypt              = CryptFactory::createGatewayCrypt($gatewayClass, $this->logger);
-        $requestDataMapper  = RequestDataMapperFactory::createGatewayRequestMapper(
-            $gatewayClass,
-            $this->eventDispatcher,
-            $crypt
-        );
-        $responseDataMapper = ResponseDataMapperFactory::createGatewayResponseMapper(
-            $gatewayClass,
-            $requestDataMapper,
-            $this->logger
-        );
-        $serializer         = SerializerFactory::createGatewaySerializer($gatewayClass);
-
-        /** @var PosInterface $gateway */
-        $gateway = new $gatewayClass(
-            [
-                'gateway_endpoints' => $options['gateway_endpoints'],
-                'gateway_configs'   => $options['gateway_configs'] ?? [],
-            ],
-            $account,
-            $requestDataMapper,
-            $responseDataMapper,
-            $serializer,
-            $this->eventDispatcher,
-            HttpClientFactory::createHttpClient($this->client),
-            $this->logger,
+            $options['credentials']
         );
 
-        // todo remove this in next major version
-        if (!isset($options['gateway_configs']['test_mode']) && isset($options['test_mode'])) {
-            $gateway->setTestMode($options['test_mode']);
-        }
+        $config = [
+            'class' => $options['gateway_class'],
+            'gateway_endpoints' => $options['gateway_endpoints'],
+            'gateway_configs' => $options['gateway_configs'] ?? [],
+        ];
 
-        return $gateway;
+        return PosFactory::create($account, $config, $this->eventDispatcher, null, $this->client, $this->logger);
     }
 }

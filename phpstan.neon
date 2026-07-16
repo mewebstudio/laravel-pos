@@ -1,0 +1,12 @@
+includes:
+    - vendor/larastan/larastan/extension.neon
+    - vendor/phpstan/phpstan-strict-rules/rules.neon
+    - phpstan-baseline.neon
+
+parameters:
+  level: 8
+  paths:
+    - src
+  excludePaths:
+    - tests
+  reportUnmatchedIgnoredErrors: false

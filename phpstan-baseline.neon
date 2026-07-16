@@ -1,0 +1,13 @@
+parameters:
+	ignoreErrors:
+		-
+			message: '#^Call to function is_a\(\) with arguments class\-string\<Mews\\Pos\\PosInterface\>, ''Mews\\\\Pos\\\\PosInterface'' and true will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: src/Factory/GatewayFactory.php
+
+		-
+			message: '#^Parameter \#2 \$config of static method Mews\\Pos\\Factory\\PosQueryFactory\:\:create\(\) expects array\{class\?\: class\-string\<Mews\\Pos\\PosInterface\>, gateway_configs\?\: array\{test_mode\?\: bool, lang\?\: ''en''\|''tr''\}, gateway_endpoints\: array\<''gateway_3d''\|''payment_api''\|''query_api'', non\-empty\-string\>\}, array\{class\: class\-string\<Mews\\Pos\\PosInterface\>, gateway_endpoints\: array\{payment_api\: non\-empty\-string, gateway_3d\?\: non\-empty\-string, gateway_3d_host\?\: non\-empty\-string, query_api\?\: non\-empty\-string\}, gateway_configs\: array\{\}\|array\{test_mode\?\: bool, lang\?\: ''en''\|''tr'', disable_3d_hash_check\?\: bool\}\} given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Factory/PosQueryFactory.php
