@@ -1,6 +1,6 @@
 # Değişiklik Geçmişi
 
-## [2.0.0] - 2026-07-14
+## [2.0.0] - 2026-07-16
 
 Bkz. [docs/UPGRADE-2.0.md](./docs/UPGRADE-2.0.md) — v1'den v2'ye geçiş kılavuzu.
 
